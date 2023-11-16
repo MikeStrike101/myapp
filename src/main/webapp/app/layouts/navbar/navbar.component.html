@@ -2,7 +2,7 @@
   <div class="container-fluid">
     <a class="navbar-brand logo" routerLink="/" (click)="collapseNavbar()">
       <span class="logo-img"></span>
-      <span class="navbar-title">Myapp</span>
+      <span class="navbar-title">EvoCode</span>
       <span class="navbar-version">{{ version }}</span>
     </a>
     <a
@@ -125,6 +125,13 @@
             </li>
           </ul>
         </li>
+        <label class="switch">
+          <input type="checkbox" (change)="toggleTheme()" />
+          <span class="slider round">
+            <i class="theme-icon light fas fa-sun"></i>
+            <i class="theme-icon dark fas fa-moon"></i>
+          </span>
+        </label>
       </ul>
     </div>
   </div>
