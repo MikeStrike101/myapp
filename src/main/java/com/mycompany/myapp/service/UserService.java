@@ -1,5 +1,6 @@
 package com.mycompany.myapp.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mycompany.myapp.config.Constants;
 import com.mycompany.myapp.domain.Authority;
 import com.mycompany.myapp.domain.User;
@@ -7,19 +8,25 @@ import com.mycompany.myapp.repository.AuthorityRepository;
 import com.mycompany.myapp.repository.UserRepository;
 import com.mycompany.myapp.security.SecurityUtils;
 import com.mycompany.myapp.service.dto.AdminUserDTO;
+import com.mycompany.myapp.service.dto.UserCharacterDTO;
 import com.mycompany.myapp.service.dto.UserDTO;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -36,9 +43,15 @@ public class UserService {
 
     private final AuthorityRepository authorityRepository;
 
-    public UserService(UserRepository userRepository, AuthorityRepository authorityRepository) {
+    private final ObjectMapper objectMapper;
+
+    @Autowired
+    private CharacterService characterService;
+
+    public UserService(UserRepository userRepository, AuthorityRepository authorityRepository, ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.authorityRepository = authorityRepository;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -270,5 +283,20 @@ public class UserService {
         }
         user.setActivated(activated);
         return user;
+    }
+
+    @Transactional
+    public Mono<String> authenticateUserFromFile(MultipartFile file) {
+        try {
+            UserCharacterDTO characterDetails = objectMapper.readValue(file.getBytes(), UserCharacterDTO.class);
+            return authenticate(characterDetails);
+        } catch (IOException e) {
+            return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to parse file content"));
+        }
+    }
+
+    public Mono<String> authenticate(UserCharacterDTO characterDetails) {
+        String token = "some-generated-token";
+        return Mono.just(token);
     }
 }
