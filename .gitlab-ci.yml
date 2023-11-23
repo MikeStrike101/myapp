@@ -18,6 +18,10 @@ before_script:
   - ./gradlew npm_install -PnodeInstall --no-daemon
 nohttp:
   stage: check
+  tags:
+    - docker
+    - linux
+    - jhipster
   script:
     - ./gradlew checkstyleNohttp --no-daemon
 
