@@ -15,9 +15,6 @@ stages:
 before_script:
   - export NG_CLI_ANALYTICS="false"
   - export GRADLE_USER_HOME=`pwd`/.gradle
-  - chmod -R 777 .gradle/ # Adjust permissions of the .gradle directory
-  - ./gradlew clean --no-daemon # Clean up the project
-  - npm cache clean --force # Clean up the npm cache
   - ./gradlew npm_install -PnodeInstall --no-daemon
 nohttp:
   stage: check
@@ -60,6 +57,7 @@ gradle-integration-test:
     DOCKER_HOST: 'tcp://docker:2375'
     # Improve performance with overlayfs.
     DOCKER_DRIVER: overlay2
+    GRADLE_USER_HOME: '/cache/.gradle'
 
   stage: test
   script:
