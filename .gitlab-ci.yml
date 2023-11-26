@@ -18,10 +18,6 @@ before_script:
   - ./gradlew npm_install -PnodeInstall --no-daemon
 nohttp:
   stage: check
-  tags:
-    - docker
-    - linux
-    - jhipster
   script:
     - ./gradlew checkstyleNohttp --no-daemon
 
@@ -57,7 +53,6 @@ gradle-integration-test:
     DOCKER_HOST: 'tcp://docker:2375'
     # Improve performance with overlayfs.
     DOCKER_DRIVER: overlay2
-    GRADLE_USER_HOME: '/cache/.gradle'
 
   stage: test
   script:
@@ -91,14 +86,13 @@ gradle-package:
       - build/libs/*.jar
       - build/classes
     expire_in: 1 day
-# Uncomment the following line to use gitlabs container registry. You need to adapt the REGISTRY_URL in case you are not using gitlab.com
-#docker-push:
-#    stage: release
-#    variables:
-#        REGISTRY_URL: registry.gitlab.com
-#        IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
-#    dependencies:
-#        - gradle-package
-#    script:
-#        - ./gradlew jib -Pprod -PnodeInstall -Djib.to.image=$IMAGE_TAG -Djib.to.auth.username="gitlab-ci-token"  -Djib.to.auth.password=$CI_BUILD_TOKEN
 
+docker-push:
+  stage: release
+  variables:
+    REGISTRY_URL: registry.gitlab.com
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
+  dependencies:
+    - gradle-package
+  script:
+    - ./gradlew jib -Pprod -PnodeInstall -Djib.to.image=$IMAGE_TAG -Djib.to.auth.username="gitlab-ci-token"  -Djib.to.auth.password=$CI_BUILD_TOKEN
