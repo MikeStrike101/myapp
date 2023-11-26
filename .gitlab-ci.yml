@@ -15,6 +15,7 @@ stages:
 before_script:
   - export NG_CLI_ANALYTICS="false"
   - export GRADLE_USER_HOME=`pwd`/.gradle
+  - git config --global --add safe.directory /builds/projects-2023-24/maa037
   - ./gradlew npm_install -PnodeInstall --no-daemon
 nohttp:
   stage: check
