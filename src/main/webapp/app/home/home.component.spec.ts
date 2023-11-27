@@ -9,6 +9,7 @@ import { Account } from 'app/core/auth/account.model';
 import { LoginService } from 'app/login/login.service';
 
 import { HomeComponent } from './home.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('Home Component', () => {
   let comp: HomeComponent;
@@ -28,6 +29,7 @@ describe('Home Component', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       declarations: [HomeComponent],
       providers: [AccountService, LoginService],
     })
