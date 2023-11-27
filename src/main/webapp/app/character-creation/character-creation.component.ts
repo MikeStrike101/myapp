@@ -17,14 +17,7 @@ export class CharacterCreationComponent implements OnInit {
   }
 
   createCharacter(): void {
-    this.characterService.createCharacter(this.characterName, this.characterFeatures).subscribe(
-      result => {
-        console.log('Character created successfully', result);
-      },
-      error => {
-        console.error('Error creating character', error);
-      }
-    );
+    this.characterService.createCharacter(this.characterName, this.characterFeatures);
   }
 
   private loadInitialCharacterFeatures(): void {
