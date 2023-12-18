@@ -1,6 +1,26 @@
-<div class="character-creation">
-  <input type="text" [(ngModel)]="characterName" placeholder="Enter character name" />
-  <!-- Add more inputs/selects for character features -->
-  <button (click)="createCharacter()">Create Character</button>
-  <p>character-creation works!</p>
+<div class="creation-container">
+  <div class="creation-card">
+    <div class="header">
+      <h2>Create Your Character</h2>
+    </div>
+    <div class="form-group">
+      <input type="text" [(ngModel)]="characterName" placeholder="Enter character name" class="form-control" />
+    </div>
+    <div class="character-container">
+      <div class="arrows-container left">
+        <span class="arrow right-arrow" (click)="nextEmoji()"></span>
+        <span class="arrow right-arrow" (click)="nextEmoji()"></span>
+        <span class="arrow right-arrow" (click)="nextEmoji()"></span>
+      </div>
+      <div class="character-icon">
+        {{ emojis[currentEmojiIndex % (emojis.length - 1)] }}
+      </div>
+      <div class="arrows-container right">
+        <span class="arrow left-arrow" (click)="previousEmoji()"></span>
+        <span class="arrow left-arrow" (click)="previousEmoji()"></span>
+        <span class="arrow left-arrow" (click)="previousEmoji()"></span>
+      </div>
+    </div>
+    <button (click)="createCharacter()" class="create-btn">Create Character</button>
+  </div>
 </div>

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CharacterService } from './character.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'jhi-character-creation',
@@ -9,15 +10,32 @@ import { CharacterService } from './character.service';
 export class CharacterCreationComponent implements OnInit {
   characterName = '';
   characterFeatures: any = {};
+  emojis: string[] = ['😀', '😃', '😄', '😁', '😆', '😅', '😂'];
+  currentEmojiIndex = 0;
 
-  constructor(private characterService: CharacterService) {}
+  constructor(private characterService: CharacterService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadInitialCharacterFeatures();
   }
 
   createCharacter(): void {
-    this.characterService.createCharacter(this.characterName, this.characterFeatures);
+    this.characterService.createCharacter(this.characterName, this.characterFeatures).subscribe(
+      result => {
+        this.router.navigate(['/character-profile']);
+      },
+      error => {
+        console.error('Error creating character', error);
+      }
+    );
+  }
+
+  nextEmoji(): void {
+    this.currentEmojiIndex = (this.currentEmojiIndex + 1) % this.emojis.length;
+  }
+
+  previousEmoji(): void {
+    this.currentEmojiIndex = (this.currentEmojiIndex - 1 + this.emojis.length) % this.emojis.length;
   }
 
   private loadInitialCharacterFeatures(): void {
@@ -25,7 +43,6 @@ export class CharacterCreationComponent implements OnInit {
       strength: 10,
       intelligence: 10,
       charisma: 10,
-      // Other features will follow
     };
   }
 }
