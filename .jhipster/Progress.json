@@ -1,0 +1,32 @@
+{
+  "applications": "*",
+  "changelogDate": "20231227133644",
+  "dto": "mapstruct",
+  "embedded": false,
+  "entityTableName": "progress",
+  "fields": [
+    {
+      "fieldName": "status",
+      "fieldType": "Status",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "STARTED,IN_PROGRESS,COMPLETED"
+    },
+    {
+      "fieldName": "currentLesson",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "xp",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Progress",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [],
+  "service": "serviceClass"
+}

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity GameCharacter.
+    -->
+    <changeSet id="20231227133643-1" author="jhipster">
+        <createTable tableName="game_character">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="level" type="integer">
+                <constraints nullable="false" />
+            </column>
+            <column name="experience" type="integer">
+                <constraints nullable="false" />
+            </column>
+            <column name="shape" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="color" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="accessory" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="programming_language" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="unique_link" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="progress_id" type="bigint">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_game_character__progress_id" />
+            </column>
+            <column name="user_id" type="varchar(100)">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+    </changeSet>
+
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+
+    <!--
+        Load sample data generated with Faker.js
+        - This data can be easily edited using a CSV editor (or even MS Excel) and
+          is located in the 'src/main/resources/config/liquibase/fake-data' directory
+        - By default this data is applied when running with the JHipster 'dev' profile.
+          This can be customized by adding or removing 'faker' in the 'spring.liquibase.contexts'
+          Spring Boot configuration key.
+    -->
+    <changeSet id="20231227133643-1-data" author="jhipster" context="faker">
+        <loadData
+                  file="game_character.csv"
+                  separator=";"
+                  tableName="game_character"
+                  usePreparedStatements="true"
+                  relativeToChangelogFile="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="email" type="string"/>
+            <column name="level" type="numeric"/>
+            <column name="experience" type="numeric"/>
+            <column name="shape" type="string"/>
+            <column name="color" type="string"/>
+            <column name="accessory" type="string"/>
+            <column name="programming_language" type="string"/>
+            <column name="unique_link" type="string"/>
+            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
+        </loadData>
+    </changeSet>
+</databaseChangeLog>

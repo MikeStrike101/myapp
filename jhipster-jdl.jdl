@@ -1,0 +1,39 @@
+entity User {
+  login String required minlength(2),
+  userEmail String required,
+  imageUrl String
+}
+
+entity GameCharacter {
+  name String required minlength(2),
+  email String required,
+  level Integer required min(0),
+  experience Integer required min(0),
+  shape String required,
+  color String required,
+  accessory String,
+  programmingLanguage String required,
+  uniqueLink String required
+}
+
+relationship OneToMany {
+  User{gameCharacter} to GameCharacter{user}
+}
+
+relationship OneToOne {
+  GameCharacter{progress} to Progress
+}
+
+enum Status {
+  STARTED, IN_PROGRESS, COMPLETED
+}
+
+entity Progress {
+  status Status required,
+  currentLesson Integer,
+  xp Integer required min(0)
+}
+
+paginate GameCharacter with pagination
+dto GameCharacter, Progress with mapstruct
+

@@ -67,27 +67,30 @@
                                  referencedTableName="jhi_user"/>
 
         <loadData
-                  file="config/liquibase/data/user.csv"
+                  file="user.csv"
                   separator=";"
                   tableName="jhi_user"
-                  usePreparedStatements="true">
+                  usePreparedStatements="true"
+                  relativeToChangelogFile="true">
             <column name="id" type="string"/>
             <column name="activated" type="boolean"/>
             <column name="created_date" type="timestamp"/>
         </loadData>
         <dropDefaultValue tableName="jhi_user" columnName="created_date" columnDataType="${datetimeType}"/>
         <loadData
-                  file="config/liquibase/data/authority.csv"
+                  file="authority.csv"
                   separator=";"
                   tableName="jhi_authority"
-                  usePreparedStatements="true">
+                  usePreparedStatements="true"
+                  relativeToChangelogFile="true">
             <column name="name" type="string"/>
         </loadData>
         <loadData
-                  file="config/liquibase/data/user_authority.csv"
+                  file="user_authority.csv"
                   separator=";"
                   tableName="jhi_user_authority"
-                  usePreparedStatements="true">
+                  usePreparedStatements="true"
+                  relativeToChangelogFile="true">
             <column name="user_id" type="string"/>
         </loadData>
     </changeSet>

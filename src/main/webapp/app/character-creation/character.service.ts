@@ -1,25 +1,44 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { IGameCharacter } from '../entities/game-character/game-character.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CharacterService {
-  private apiUrl = 'http://api-url.com/characters'; // Replace with your API URL
+  httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+  };
+
+  private gameCharactersUrl = 'http://localhost:8080/api/game-characters';
 
   constructor(private http: HttpClient) {}
 
-  // Method to create a new character
-  createCharacter(name: string, features: any): Observable<any> {
-    const characterData = { name, features };
-    return this.http.post(this.apiUrl, characterData);
+  createGameCharacter(gameCharacter: IGameCharacter): Observable<IGameCharacter> {
+    return this.http.post<IGameCharacter>(this.gameCharactersUrl, gameCharacter, this.httpOptions);
   }
 
-  // Method to fetch character details by name
-  getCharacterByName(name: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${name}`);
+  // Retrieve all game characters
+  getGameCharacters(): Observable<IGameCharacter[]> {
+    return this.http.get<IGameCharacter[]>(this.gameCharactersUrl);
   }
 
-  // Add more methods as needed for your application
+  // Retrieve a single game character by ID
+  getGameCharacterById(id: number): Observable<IGameCharacter> {
+    const url = `${this.gameCharactersUrl}/${id}`;
+    return this.http.get<IGameCharacter>(url);
+  }
+
+  // Partial update for a game character
+  partialUpdateGameCharacter(id: number, patchData: any): Observable<IGameCharacter> {
+    const url = `${this.gameCharactersUrl}/${id}`;
+    return this.http.patch<IGameCharacter>(url, patchData, this.httpOptions);
+  }
+
+  // Delete a game character
+  deleteGameCharacter(id: number): Observable<{}> {
+    const url = `${this.gameCharactersUrl}/${id}`;
+    return this.http.delete(url, this.httpOptions);
+  }
 }
