@@ -1,0 +1,108 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-user-problem-heading" data-cy="UserProblemCreateUpdateHeading">Create or edit a User Problem</h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="row mb-3" *ngIf="editForm.controls.id.value !== null">
+          <label class="form-label" for="field_id">ID</label>
+          <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_solvedAt">Solved At</label>
+          <div class="d-flex">
+            <input
+              id="field_solvedAt"
+              data-cy="solvedAt"
+              type="datetime-local"
+              class="form-control"
+              name="solvedAt"
+              formControlName="solvedAt"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_passedTestCases">Passed Test Cases</label>
+          <input
+            type="number"
+            class="form-control"
+            name="passedTestCases"
+            id="field_passedTestCases"
+            data-cy="passedTestCases"
+            formControlName="passedTestCases"
+          />
+          <div
+            *ngIf="
+              editForm.get('passedTestCases')!.invalid &&
+              (editForm.get('passedTestCases')!.dirty || editForm.get('passedTestCases')!.touched)
+            "
+          >
+            <small class="form-text text-danger" *ngIf="editForm.get('passedTestCases')?.errors?.required"> This field is required. </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('passedTestCases')?.errors?.min">
+              This field should be at least 0.
+            </small>
+            <small class="form-text text-danger" [hidden]="!editForm.get('passedTestCases')?.errors?.number">
+              This field should be a number.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_xpAwarded">Xp Awarded</label>
+          <input type="number" class="form-control" name="xpAwarded" id="field_xpAwarded" data-cy="xpAwarded" formControlName="xpAwarded" />
+          <div *ngIf="editForm.get('xpAwarded')!.invalid && (editForm.get('xpAwarded')!.dirty || editForm.get('xpAwarded')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('xpAwarded')?.errors?.required"> This field is required. </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('xpAwarded')?.errors?.min"> This field should be at least 0. </small>
+            <small class="form-text text-danger" [hidden]="!editForm.get('xpAwarded')?.errors?.number">
+              This field should be a number.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_user">User</label>
+          <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
+            <option [ngValue]="null"></option>
+            <option [ngValue]="userOption" *ngFor="let userOption of usersSharedCollection">{{ userOption.id }}</option>
+          </select>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_problem">Problem</label>
+          <select
+            class="form-control"
+            id="field_problem"
+            data-cy="problem"
+            name="problem"
+            formControlName="problem"
+            [compareWith]="compareProblem"
+          >
+            <option [ngValue]="null"></option>
+            <option [ngValue]="problemOption" *ngFor="let problemOption of problemsSharedCollection">{{ problemOption.id }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

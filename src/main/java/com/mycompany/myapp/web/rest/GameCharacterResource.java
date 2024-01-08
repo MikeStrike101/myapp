@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -174,12 +175,14 @@ public class GameCharacterResource {
      *
      * @param pageable the pagination information.
      * @param request a {@link ServerHttpRequest} request.
+     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of gameCharacters in body.
      */
     @GetMapping("/game-characters")
     public Mono<ResponseEntity<List<GameCharacterDTO>>> getAllGameCharacters(
         @org.springdoc.api.annotations.ParameterObject Pageable pageable,
-        ServerHttpRequest request
+        ServerHttpRequest request,
+        @RequestParam(required = false, defaultValue = "false") boolean eagerload
     ) {
         log.debug("REST request to get a page of GameCharacters");
         return gameCharacterService
@@ -198,17 +201,19 @@ public class GameCharacterResource {
             );
     }
 
-    /**
-     * {@code GET  /game-characters/:id} : get the "id" gameCharacter.
-     *
-     * @param id the id of the gameCharacterDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the gameCharacterDTO, or with status {@code 404 (Not Found)}.
-     */
-    @GetMapping("/game-characters/{id}")
-    public Mono<ResponseEntity<GameCharacterDTO>> getGameCharacter(@PathVariable Long id) {
-        log.debug("REST request to get GameCharacter : {}", id);
-        Mono<GameCharacterDTO> gameCharacterDTO = gameCharacterService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(gameCharacterDTO);
+    @GetMapping("/game-characters/{identifier}")
+    public Mono<ResponseEntity<GameCharacterDTO>> getGameCharacter(@PathVariable String identifier) {
+        log.debug("REST request to get GameCharacter by identifier: {}", identifier);
+
+        if (StringUtils.isNumeric(identifier)) {
+            // If the identifier is numeric, treat it as an ID
+            Long id = Long.parseLong(identifier);
+            Mono<GameCharacterDTO> gameCharacterDTO = gameCharacterService.findOne(id);
+            return ResponseUtil.wrapOrNotFound(gameCharacterDTO);
+        } else {
+            Mono<GameCharacterDTO> gameCharacterDTO = gameCharacterService.findByUniqueLink(identifier);
+            return ResponseUtil.wrapOrNotFound(gameCharacterDTO);
+        }
     }
 
     /**

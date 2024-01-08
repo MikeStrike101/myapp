@@ -51,6 +51,10 @@
       "fieldName": "uniqueLink",
       "fieldType": "String",
       "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "profilePicture",
+      "fieldType": "String"
     }
   ],
   "fluentMethods": true,
@@ -67,7 +71,7 @@
     },
     {
       "otherEntityName": "user",
-      "otherEntityRelationshipName": "gameCharacter",
+      "otherEntityRelationshipName": "gameCharacters",
       "relationshipName": "user",
       "relationshipType": "many-to-one"
     }

@@ -41,6 +41,9 @@
             <column name="unique_link" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+            <column name="profile_picture" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <column name="progress_id" type="bigint">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_game_character__progress_id" />
             </column>
@@ -66,8 +69,7 @@
                   file="game_character.csv"
                   separator=";"
                   tableName="game_character"
-                  usePreparedStatements="true"
-                  relativeToChangelogFile="true">
+                  usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="name" type="string"/>
             <column name="email" type="string"/>
@@ -78,6 +80,7 @@
             <column name="accessory" type="string"/>
             <column name="programming_language" type="string"/>
             <column name="unique_link" type="string"/>
+            <column name="profile_picture" type="string"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

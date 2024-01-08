@@ -13,8 +13,21 @@ export class GameCharacterRoutingResolveService implements Resolve<IGameCharacte
 
   resolve(route: ActivatedRouteSnapshot): Observable<IGameCharacter | null | never> {
     const id = route.params['id'];
+    const uniqueLink = route.params['uniqueLink'];
     if (id) {
       return this.service.find(id).pipe(
+        mergeMap((gameCharacter: HttpResponse<IGameCharacter>) => {
+          if (gameCharacter.body) {
+            return of(gameCharacter.body);
+          } else {
+            this.router.navigate(['404']);
+            return EMPTY;
+          }
+        })
+      );
+    }
+    if (uniqueLink) {
+      return this.service.findByUniqueLink(uniqueLink).pipe(
         mergeMap((gameCharacter: HttpResponse<IGameCharacter>) => {
           if (gameCharacter.body) {
             return of(gameCharacter.body);

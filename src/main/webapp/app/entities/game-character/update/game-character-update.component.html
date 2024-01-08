@@ -1,159 +1,150 @@
-<div class="d-flex justify-content-center character-container">
-  <div class="creation-card">
-    <form name="editForm" class="creation-card" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
-      <h2 id="jhi-game-character-heading" data-cy="GameCharacterCreateUpdateHeading">Create or edit a Game Character</h2>
+<div class="creation-container">
+  <form name="editForm" class="creation-card" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+    <h2 id="jhi-game-character-heading" data-cy="GameCharacterCreateUpdateHeading">Create or edit a Game Character</h2>
+    <jhi-alert-error></jhi-alert-error>
 
-      <div class="creation-card">
-        <jhi-alert-error></jhi-alert-error>
+    <div>
+      <label for="field_name">Enter character name</label>
+      <input type="text" class="form-control" name="name" id="field_name" data-cy="name" formControlName="name" />
+      <div *ngIf="editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)">
+        <small class="form-text text-danger" *ngIf="editForm.get('name')?.errors?.required"> This field is required. </small>
+        <small class="form-text text-danger" *ngIf="editForm.get('name')?.errors?.minlength">
+          This field is required to be at least 2 characters.
+        </small>
+      </div>
+    </div>
 
-        <div>
-          <label class="form-label" for="field_name">Enter character name</label>
-          <input type="text" class="form-control" name="name" id="field_name" data-cy="name" formControlName="name" />
-          <div *ngIf="editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)">
-            <small class="form-text text-danger" *ngIf="editForm.get('name')?.errors?.required"> This field is required. </small>
-            <small class="form-text text-danger" *ngIf="editForm.get('name')?.errors?.minlength">
-              This field is required to be at least 2 characters.
-            </small>
-          </div>
-        </div>
+    <div>
+      <label for="field_email">Enter your email</label>
+      <input type="text" class="form-control" name="email" id="field_email" data-cy="email" formControlName="email" />
+      <div *ngIf="editForm.get('email')!.invalid && (editForm.get('email')!.dirty || editForm.get('email')!.touched)">
+        <small class="form-text text-danger" *ngIf="editForm.get('email')?.errors?.required"> This field is required. </small>
+      </div>
+    </div>
 
-        <div>
-          <label class="form-label" for="field_email">Enter your email</label>
-          <input type="text" class="form-control" name="email" id="field_email" data-cy="email" formControlName="email" />
-          <div *ngIf="editForm.get('email')!.invalid && (editForm.get('email')!.dirty || editForm.get('email')!.touched)">
-            <small class="form-text text-danger" *ngIf="editForm.get('email')?.errors?.required"> This field is required. </small>
-          </div>
-        </div>
+    <div>
+      <label class="form-label" for="field_level">Level</label>
+      <input type="number" class="form-control" name="level" id="field_level" data-cy="level" formControlName="level" value="1" />
+    </div>
 
-        <div>
-          <label class="form-label" for="field_level">Level</label>
-          <input type="number" class="form-control" name="level" id="field_level" data-cy="level" formControlName="level" value="1" />
-        </div>
-
-        <div>
-          <label class="form-label" for="field_experience">Experience</label>
-          <input
-            type="number"
-            class="form-control"
-            name="experience"
-            id="field_experience"
-            data-cy="experience"
-            formControlName="experience"
-            value="0"
-          />
-          <div
-            *ngIf="editForm.get('experience')!.invalid && (editForm.get('experience')!.dirty || editForm.get('experience')!.touched)"
-          ></div>
-        </div>
-        <div class="character-container">
-          <div class="arrows-container left">
-            <span class="arrow left-arrow" (click)="previousColor()"></span>
-            <span class="arrow left-arrow" (click)="previousAccessory()"></span>
-            <span class="arrow left-arrow" (click)="previousShape()"></span>
-          </div>
-          <div>
-            <input type="text" class="form-control" name="shape" id="field_shape" data-cy="shape" formControlName="shape" />
+    <div>
+      <label class="form-label" for="field_experience">Experience</label>
+      <input
+        type="number"
+        class="form-control"
+        name="experience"
+        id="field_experience"
+        data-cy="experience"
+        formControlName="experience"
+        value="0"
+      />
+      <div *ngIf="editForm.get('experience')!.invalid && (editForm.get('experience')!.dirty || editForm.get('experience')!.touched)"></div>
+    </div>
+    <div class="character-container">
+      <div class="arrows-container left">
+        <span class="arrow left-arrow" (click)="previousColor()"></span>
+        <span class="arrow left-arrow" (click)="previousAccessory()"></span>
+        <span class="arrow left-arrow" (click)="previousShape()"></span>
+      </div>
+      <div class="character-icon">
+        <div class="shape">
+          <label for="field_shape"></label>
+          <div id="field_shape" data-cy="shape">
             {{ currentShape }}
-            <div *ngIf="editForm.get('shape')!.invalid && (editForm.get('shape')!.dirty || editForm.get('shape')!.touched)">
-              <small class="form-text text-danger" *ngIf="editForm.get('shape')?.errors?.required"> This field is required. </small>
-            </div>
           </div>
-
-          <div>
-            <input type="text" class="form-control" name="color" id="field_color" data-cy="color" formControlName="color" />
-            <div *ngIf="editForm.get('color')!.invalid && (editForm.get('color')!.dirty || editForm.get('color')!.touched)">
-              <small class="form-text text-danger" *ngIf="editForm.get('color')?.errors?.required"> This field is required. </small>
-            </div>
+          <div *ngIf="editForm.get('shape')!.invalid && (editForm.get('shape')!.dirty || editForm.get('shape')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('shape')?.errors?.required"> This field is required. </small>
           </div>
-
-          <div>
+        </div>
+        <div class="color">
+          <label for="field_color"></label>
+          <div id="field_color" data-cy="color">
+            {{ currentColor }}
+          </div>
+          <div *ngIf="editForm.get('color')!.invalid && (editForm.get('color')!.dirty || editForm.get('color')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('color')?.errors?.required"> This field is required. </small>
+          </div>
+        </div>
+        <div class="accessory">
+          <label for="field_accessory"></label>
+          <div id="field_accessory" data-cy="accessory">
             {{ currentAccessory }}
-            <input type="text" class="form-control" name="accessory" id="field_accessory" data-cy="accessory" formControlName="accessory" />
           </div>
-          <div class="arrows-container">
-            <span class="arrow right-arrow" (click)="nextColor()"></span>
-            <span class="arrow right-arrow" (click)="nextAccessory()"></span>
-            <span class="arrow right-arrow" (click)="nextShape()"></span>
-          </div>
-        </div>
-        <div>
-          <label class="form-label" for="field_programmingLanguage">Programming Language</label>
-          <select
-            class="form-control"
-            name="programmingLanguage"
-            id="field_programmingLanguage"
-            data-cy="programmingLanguage"
-            formControlName="programmingLanguage"
-          >
-            <option value="">--Choose a programming language--</option>
-            <option *ngFor="let language of programmingLanguages" [value]="language">
-              {{ language }}
-            </option>
-          </select>
-          <div
-            *ngIf="
-              editForm.get('programmingLanguage')!.invalid &&
-              (editForm.get('programmingLanguage')!.dirty || editForm.get('programmingLanguage')!.touched)
-            "
-          >
-            <small class="form-text text-danger" *ngIf="editForm.get('programmingLanguage')?.errors?.required">
-              This field is required.
-            </small>
-          </div>
-        </div>
-
-        <div>
-          <label class="form-label" for="field_uniqueLink">Unique Link</label>
-          <input
-            type="text"
-            class="form-control"
-            name="uniqueLink"
-            id="field_uniqueLink"
-            data-cy="uniqueLink"
-            formControlName="uniqueLink"
-          />
-          <div *ngIf="editForm.get('uniqueLink')!.invalid && (editForm.get('uniqueLink')!.dirty || editForm.get('uniqueLink')!.touched)">
-            <small class="form-text text-danger" *ngIf="editForm.get('uniqueLink')?.errors?.required"> This field is required. </small>
-          </div>
-        </div>
-
-        <div>
-          <label class="form-label" for="field_progress">Progress</label>
-          <select
-            class="form-control"
-            id="field_progress"
-            data-cy="progress"
-            name="progress"
-            formControlName="progress"
-            [compareWith]="compareProgress"
-            value="0"
-          ></select>
-        </div>
-
-        <div>
-          <label class="form-label" for="field_user">User</label>
-          <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
-            <option [ngValue]="null"></option>
-            <option [ngValue]="userOption" *ngFor="let userOption of usersSharedCollection">{{ userOption.id }}</option>
-          </select>
         </div>
       </div>
-
-      <div>
-        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
-          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
-        </button>
-
-        <button
-          type="submit"
-          id="save-entity"
-          data-cy="entityCreateSaveButton"
-          [disabled]="editForm.invalid || isSaving"
-          class="btn btn-primary"
-        >
-          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
-        </button>
+      <div class="arrows-container">
+        <span class="arrow right-arrow" (click)="nextColor()"></span>
+        <span class="arrow right-arrow" (click)="nextAccessory()"></span>
+        <span class="arrow right-arrow" (click)="nextShape()"></span>
       </div>
-    </form>
-  </div>
+    </div>
+    <div>
+      <label class="form-label" for="field_programmingLanguage">Programming Language</label>
+      <select
+        class="form-control"
+        name="programmingLanguage"
+        id="field_programmingLanguage"
+        data-cy="programmingLanguage"
+        formControlName="programmingLanguage"
+      >
+        <option value="">--Choose a programming language--</option>
+        <option *ngFor="let language of programmingLanguages" [value]="language">
+          {{ language }}
+        </option>
+      </select>
+      <div
+        *ngIf="
+          editForm.get('programmingLanguage')!.invalid &&
+          (editForm.get('programmingLanguage')!.dirty || editForm.get('programmingLanguage')!.touched)
+        "
+      >
+        <small class="form-text text-danger" *ngIf="editForm.get('programmingLanguage')?.errors?.required"> This field is required. </small>
+      </div>
+    </div>
+
+    <div>
+      <label class="form-label" for="field_uniqueLink">Unique Link</label>
+      <input type="text" class="form-control" name="uniqueLink" id="field_uniqueLink" data-cy="uniqueLink" formControlName="uniqueLink" />
+      <div *ngIf="editForm.get('uniqueLink')!.invalid && (editForm.get('uniqueLink')!.dirty || editForm.get('uniqueLink')!.touched)">
+        <small class="form-text text-danger" *ngIf="editForm.get('uniqueLink')?.errors?.required"> This field is required. </small>
+      </div>
+    </div>
+
+    <div>
+      <label class="form-label" for="field_progress">Progress</label>
+      <select
+        class="form-control"
+        id="field_progress"
+        data-cy="progress"
+        name="progress"
+        formControlName="progress"
+        [compareWith]="compareProgress"
+        value="0"
+      ></select>
+    </div>
+
+    <div>
+      <label class="form-label" for="field_user">User</label>
+      <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
+        <option [ngValue]="null"></option>
+        <option [ngValue]="userOption" *ngFor="let userOption of usersSharedCollection">{{ userOption.id }}</option>
+      </select>
+    </div>
+
+    <div>
+      <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+        <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+      </button>
+
+      <button
+        type="submit"
+        id="save-entity"
+        data-cy="entityCreateSaveButton"
+        [disabled]="editForm.invalid || isSaving"
+        class="btn btn-primary"
+      >
+        <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+      </button>
+    </div>
+  </form>
 </div>

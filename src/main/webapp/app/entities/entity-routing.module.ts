@@ -14,6 +14,21 @@ import { RouterModule } from '@angular/router';
         data: { pageTitle: 'Progresses' },
         loadChildren: () => import('./progress/progress.module').then(m => m.ProgressModule),
       },
+      {
+        path: 'problem',
+        data: { pageTitle: 'Problems' },
+        loadChildren: () => import('./problem/problem.module').then(m => m.ProblemModule),
+      },
+      {
+        path: 'test-case',
+        data: { pageTitle: 'TestCases' },
+        loadChildren: () => import('./test-case/test-case.module').then(m => m.TestCaseModule),
+      },
+      {
+        path: 'user-problem',
+        data: { pageTitle: 'UserProblems' },
+        loadChildren: () => import('./user-problem/user-problem.module').then(m => m.UserProblemModule),
+      },
       /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
     ]),
   ],

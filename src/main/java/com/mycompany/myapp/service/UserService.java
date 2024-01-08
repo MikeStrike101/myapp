@@ -45,9 +45,6 @@ public class UserService {
 
     private final ObjectMapper objectMapper;
 
-    @Autowired
-    private CharacterService characterService;
-
     public UserService(UserRepository userRepository, AuthorityRepository authorityRepository, ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.authorityRepository = authorityRepository;

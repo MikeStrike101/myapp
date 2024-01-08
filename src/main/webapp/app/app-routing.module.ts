@@ -7,7 +7,6 @@ import { DEBUG_INFO_ENABLED } from 'app/app.constants';
 import { Authority } from 'app/config/authority.constants';
 
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
-import { CharacterCreationComponent } from './character-creation/character-creation.component';
 
 @NgModule({
   imports: [
@@ -24,10 +23,6 @@ import { CharacterCreationComponent } from './character-creation/character-creat
         {
           path: '',
           loadChildren: () => import(`./entities/entity-routing.module`).then(m => m.EntityRoutingModule),
-        },
-        {
-          path: 'character-creation',
-          component: CharacterCreationComponent,
         },
         navbarRoute,
         ...errorRoute,

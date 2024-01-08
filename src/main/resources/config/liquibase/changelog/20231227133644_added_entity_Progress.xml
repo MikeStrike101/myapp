@@ -42,8 +42,7 @@
                   file="progress.csv"
                   separator=";"
                   tableName="progress"
-                  usePreparedStatements="true"
-                  relativeToChangelogFile="true">
+                  usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="status" type="string"/>
             <column name="current_lesson" type="numeric"/>

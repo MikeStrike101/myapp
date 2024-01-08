@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="testCase">
+      <h2 data-cy="testCaseDetailsHeading"><span>Test Case</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span>ID</span></dt>
+        <dd>
+          <span>{{ testCase.id }}</span>
+        </dd>
+        <dt><span>Input</span></dt>
+        <dd>
+          <span>{{ testCase.input }}</span>
+        </dd>
+        <dt><span>Output</span></dt>
+        <dd>
+          <span>{{ testCase.output }}</span>
+        </dd>
+        <dt><span>Problem</span></dt>
+        <dd>
+          <div *ngIf="testCase.problem">
+            <a [routerLink]="['/problem', testCase.problem.id, 'view']">{{ testCase.problem.id }}</a>
+          </div>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/test-case', testCase.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

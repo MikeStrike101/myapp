@@ -1,0 +1,63 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-test-case-heading" data-cy="TestCaseCreateUpdateHeading">Create or edit a Test Case</h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="row mb-3" *ngIf="editForm.controls.id.value !== null">
+          <label class="form-label" for="field_id">ID</label>
+          <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_input">Input</label>
+          <input type="text" class="form-control" name="input" id="field_input" data-cy="input" formControlName="input" />
+          <div *ngIf="editForm.get('input')!.invalid && (editForm.get('input')!.dirty || editForm.get('input')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('input')?.errors?.required"> This field is required. </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_output">Output</label>
+          <input type="text" class="form-control" name="output" id="field_output" data-cy="output" formControlName="output" />
+          <div *ngIf="editForm.get('output')!.invalid && (editForm.get('output')!.dirty || editForm.get('output')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('output')?.errors?.required"> This field is required. </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_problem">Problem</label>
+          <select
+            class="form-control"
+            id="field_problem"
+            data-cy="problem"
+            name="problem"
+            formControlName="problem"
+            [compareWith]="compareProblem"
+          >
+            <option [ngValue]="null"></option>
+            <option [ngValue]="problemOption" *ngFor="let problemOption of problemsSharedCollection">{{ problemOption.id }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

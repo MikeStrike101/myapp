@@ -20,6 +20,7 @@ public class GameCharacterSqlHelper {
         columns.add(Column.aliased("accessory", table, columnPrefix + "_accessory"));
         columns.add(Column.aliased("programming_language", table, columnPrefix + "_programming_language"));
         columns.add(Column.aliased("unique_link", table, columnPrefix + "_unique_link"));
+        columns.add(Column.aliased("profile_picture", table, columnPrefix + "_profile_picture"));
 
         columns.add(Column.aliased("progress_id", table, columnPrefix + "_progress_id"));
         columns.add(Column.aliased("user_id", table, columnPrefix + "_user_id"));

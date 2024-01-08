@@ -18,7 +18,15 @@ const gameCharacterRoute: Routes = [
     canActivate: [UserRouteAccessService],
   },
   {
-    path: ':id/view',
+    path: 'new',
+    component: GameCharacterUpdateComponent,
+    resolve: {
+      gameCharacter: GameCharacterRoutingResolveService,
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: ':uniqueLink',
     component: GameCharacterDetailComponent,
     resolve: {
       gameCharacter: GameCharacterRoutingResolveService,
@@ -26,8 +34,8 @@ const gameCharacterRoute: Routes = [
     canActivate: [UserRouteAccessService],
   },
   {
-    path: 'new',
-    component: GameCharacterUpdateComponent,
+    path: ':id/view',
+    component: GameCharacterDetailComponent,
     resolve: {
       gameCharacter: GameCharacterRoutingResolveService,
     },

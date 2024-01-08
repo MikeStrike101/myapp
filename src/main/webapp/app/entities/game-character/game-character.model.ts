@@ -12,6 +12,7 @@ export interface IGameCharacter {
   accessory?: string | null;
   programmingLanguage?: string | null;
   uniqueLink?: string | null;
+  profilePicture?: string | null;
   progress?: Pick<IProgress, 'id'> | null;
   user?: Pick<IUser, 'id'> | null;
 }

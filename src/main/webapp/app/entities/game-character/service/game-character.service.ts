@@ -38,6 +38,10 @@ export class GameCharacterService {
     return this.http.get<IGameCharacter>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
+  findByUniqueLink(uniqueLink: string): Observable<EntityResponseType> {
+    return this.http.get<IGameCharacter>(`${this.resourceUrl}/${uniqueLink}`, { observe: 'response' });
+  }
+
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
     return this.http.get<IGameCharacter[]>(this.resourceUrl, { params: options, observe: 'response' });

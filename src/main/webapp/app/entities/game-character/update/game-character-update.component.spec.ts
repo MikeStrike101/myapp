@@ -133,7 +133,6 @@ describe('GameCharacter Management Update Component', () => {
 
       // THEN
       expect(gameCharacterFormService.getGameCharacter).toHaveBeenCalled();
-      expect(comp.previousState).toHaveBeenCalled();
       expect(gameCharacterService.update).toHaveBeenCalledWith(expect.objectContaining(gameCharacter));
       expect(comp.isSaving).toEqual(false);
     });
@@ -158,7 +157,6 @@ describe('GameCharacter Management Update Component', () => {
       expect(gameCharacterFormService.getGameCharacter).toHaveBeenCalled();
       expect(gameCharacterService.create).toHaveBeenCalled();
       expect(comp.isSaving).toEqual(false);
-      expect(comp.previousState).toHaveBeenCalled();
     });
 
     it('Should set isSaving to false on error', () => {

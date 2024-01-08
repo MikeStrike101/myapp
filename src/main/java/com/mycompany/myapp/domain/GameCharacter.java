@@ -58,6 +58,9 @@ public class GameCharacter implements Serializable {
     @Column("unique_link")
     private String uniqueLink;
 
+    @Column("profile_picture")
+    private String profilePicture;
+
     @Transient
     private Progress progress;
 
@@ -202,6 +205,19 @@ public class GameCharacter implements Serializable {
         this.uniqueLink = uniqueLink;
     }
 
+    public String getProfilePicture() {
+        return this.profilePicture;
+    }
+
+    public GameCharacter profilePicture(String profilePicture) {
+        this.setProfilePicture(profilePicture);
+        return this;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
     public Progress getProgress() {
         return this.progress;
     }
@@ -279,6 +295,7 @@ public class GameCharacter implements Serializable {
             ", accessory='" + getAccessory() + "'" +
             ", programmingLanguage='" + getProgrammingLanguage() + "'" +
             ", uniqueLink='" + getUniqueLink() + "'" +
+            ", profilePicture='" + getProfilePicture() + "'" +
             "}";
     }
 }

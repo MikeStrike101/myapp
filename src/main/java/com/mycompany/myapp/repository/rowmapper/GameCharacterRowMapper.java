@@ -34,6 +34,7 @@ public class GameCharacterRowMapper implements BiFunction<Row, String, GameChara
         entity.setAccessory(converter.fromRow(row, prefix + "_accessory", String.class));
         entity.setProgrammingLanguage(converter.fromRow(row, prefix + "_programming_language", String.class));
         entity.setUniqueLink(converter.fromRow(row, prefix + "_unique_link", String.class));
+        entity.setProfilePicture(converter.fromRow(row, prefix + "_profile_picture", String.class));
         entity.setProgressId(converter.fromRow(row, prefix + "_progress_id", Long.class));
         entity.setUserId(converter.fromRow(row, prefix + "_user_id", String.class));
         return entity;

@@ -6,6 +6,7 @@ import { IGameCharacter } from '../game-character.model';
 @Component({
   selector: 'jhi-game-character-detail',
   templateUrl: './game-character-detail.component.html',
+  styleUrls: ['./game-character-detail.component.scss'],
 })
 export class GameCharacterDetailComponent implements OnInit {
   gameCharacter: IGameCharacter | null = null;

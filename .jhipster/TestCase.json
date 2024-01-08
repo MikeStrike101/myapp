@@ -1,0 +1,33 @@
+{
+  "applications": "*",
+  "changelogDate": "20240105220446",
+  "dto": "mapstruct",
+  "embedded": false,
+  "entityTableName": "test_case",
+  "fields": [
+    {
+      "fieldName": "input",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "output",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "TestCase",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "problem",
+      "otherEntityRelationshipName": "testCases",
+      "relationshipName": "problem",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "serviceClass"
+}

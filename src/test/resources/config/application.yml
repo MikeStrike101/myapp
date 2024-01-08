@@ -29,6 +29,7 @@ spring:
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: test
+    change-log: classpath:/config/liquibase/changelog/master.xml
   jackson:
     serialization:
       write-durations-as-timestamps: false

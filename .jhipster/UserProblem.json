@@ -1,0 +1,43 @@
+{
+  "applications": "*",
+  "changelogDate": "20240105220447",
+  "dto": "mapstruct",
+  "embedded": false,
+  "entityTableName": "user_problem",
+  "fields": [
+    {
+      "fieldName": "solvedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "passedTestCases",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "xpAwarded",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "UserProblem",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "user",
+      "relationshipName": "user",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "problem",
+      "relationshipName": "problem",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "serviceClass"
+}

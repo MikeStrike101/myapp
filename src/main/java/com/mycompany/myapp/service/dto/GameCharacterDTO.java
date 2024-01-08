@@ -41,6 +41,8 @@ public class GameCharacterDTO implements Serializable {
     @NotNull(message = "must not be null")
     private String uniqueLink;
 
+    private String profilePicture;
+
     private ProgressDTO progress;
 
     private UserDTO user;
@@ -125,6 +127,14 @@ public class GameCharacterDTO implements Serializable {
         this.uniqueLink = uniqueLink;
     }
 
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
     public ProgressDTO getProgress() {
         return progress;
     }
@@ -176,6 +186,7 @@ public class GameCharacterDTO implements Serializable {
             ", accessory='" + getAccessory() + "'" +
             ", programmingLanguage='" + getProgrammingLanguage() + "'" +
             ", uniqueLink='" + getUniqueLink() + "'" +
+            ", profilePicture='" + getProfilePicture() + "'" +
             ", progress=" + getProgress() +
             ", user=" + getUser() +
             "}";

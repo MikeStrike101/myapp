@@ -92,6 +92,12 @@
               <fa-icon class="p-1" icon="sort"></fa-icon>
             </div>
           </th>
+          <th scope="col" jhiSortBy="profilePicture">
+            <div class="d-flex">
+              <span>Profile Picture</span>
+              <fa-icon class="p-1" icon="sort"></fa-icon>
+            </div>
+          </th>
           <th scope="col" jhiSortBy="progress.id">
             <div class="d-flex">
               <span>Progress</span>
@@ -121,6 +127,7 @@
           <td>{{ gameCharacter.accessory }}</td>
           <td>{{ gameCharacter.programmingLanguage }}</td>
           <td>{{ gameCharacter.uniqueLink }}</td>
+          <td>{{ gameCharacter.profilePicture }}</td>
           <td>
             <div *ngIf="gameCharacter.progress">
               <a [routerLink]="['/progress', gameCharacter.progress.id, 'view']">{{ gameCharacter.progress.id }}</a>

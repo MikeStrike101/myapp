@@ -13,11 +13,36 @@ entity GameCharacter {
   color String required,
   accessory String,
   programmingLanguage String required,
-  uniqueLink String required
+  uniqueLink String required,
+  profilePicture String
+}
+
+entity Problem {
+  title String required minlength(5) maxlength(150),
+  description String required minlength(20),
+  level Integer required min(1),
+  xpReward Integer required min(0)
+}
+
+entity TestCase {
+  input String required,
+  output String required
+}
+
+entity UserProblem {
+  solvedAt Instant,
+  passedTestCases Integer required min(0),
+  xpAwarded Integer required min(0) 
 }
 
 relationship OneToMany {
-  User{gameCharacter} to GameCharacter{user}
+  User{gameCharacters} to GameCharacter{user},
+  Problem{testCases} to TestCase{problem}
+}
+
+relationship ManyToOne {
+  UserProblem{user} to User,
+  UserProblem{problem} to Problem
 }
 
 relationship OneToOne {
@@ -34,6 +59,6 @@ entity Progress {
   xp Integer required min(0)
 }
 
-paginate GameCharacter with pagination
-dto GameCharacter, Progress with mapstruct
+paginate GameCharacter, Problem, TestCase, UserProblem with pagination
+dto GameCharacter, Progress, Problem, TestCase, UserProblem with mapstruct
 

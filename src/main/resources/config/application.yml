@@ -114,6 +114,19 @@ management:
             enabled: true
 
 spring:
+  liquibase:
+    change-log: classpath:/config/liquibase/changelog/master.xml
+  mail:
+    host: smtp.example.com
+    port: 587
+    username: your-email@example.com
+    password: your-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   application:
     name: myapp
   profiles:

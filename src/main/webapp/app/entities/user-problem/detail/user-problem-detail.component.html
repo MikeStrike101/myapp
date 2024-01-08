@@ -1,0 +1,50 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <div *ngIf="userProblem">
+      <h2 data-cy="userProblemDetailsHeading"><span>User Problem</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span>ID</span></dt>
+        <dd>
+          <span>{{ userProblem.id }}</span>
+        </dd>
+        <dt><span>Solved At</span></dt>
+        <dd>
+          <span>{{ userProblem.solvedAt | formatMediumDatetime }}</span>
+        </dd>
+        <dt><span>Passed Test Cases</span></dt>
+        <dd>
+          <span>{{ userProblem.passedTestCases }}</span>
+        </dd>
+        <dt><span>Xp Awarded</span></dt>
+        <dd>
+          <span>{{ userProblem.xpAwarded }}</span>
+        </dd>
+        <dt><span>User</span></dt>
+        <dd>
+          <span>{{ userProblem.user?.id }}</span>
+        </dd>
+        <dt><span>Problem</span></dt>
+        <dd>
+          <div *ngIf="userProblem.problem">
+            <a [routerLink]="['/problem', userProblem.problem.id, 'view']">{{ userProblem.problem.id }}</a>
+          </div>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/user-problem', userProblem.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

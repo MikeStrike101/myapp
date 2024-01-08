@@ -2,6 +2,7 @@ package com.mycompany.myapp.service;
 
 import com.mycompany.myapp.domain.GameCharacter;
 import com.mycompany.myapp.repository.GameCharacterRepository;
+import com.mycompany.myapp.service.EmailService;
 import com.mycompany.myapp.service.dto.GameCharacterDTO;
 import com.mycompany.myapp.service.mapper.GameCharacterMapper;
 import org.slf4j.Logger;
@@ -25,9 +26,20 @@ public class GameCharacterService {
 
     private final GameCharacterMapper gameCharacterMapper;
 
-    public GameCharacterService(GameCharacterRepository gameCharacterRepository, GameCharacterMapper gameCharacterMapper) {
+    private final EmailService emailService;
+
+    private final ReplicateService replicateService;
+
+    public GameCharacterService(
+        GameCharacterRepository gameCharacterRepository,
+        GameCharacterMapper gameCharacterMapper,
+        EmailService emailService,
+        ReplicateService replicateService
+    ) {
         this.gameCharacterRepository = gameCharacterRepository;
         this.gameCharacterMapper = gameCharacterMapper;
+        this.emailService = emailService;
+        this.replicateService = replicateService;
     }
 
     /**
@@ -37,8 +49,48 @@ public class GameCharacterService {
      * @return the persisted entity.
      */
     public Mono<GameCharacterDTO> save(GameCharacterDTO gameCharacterDTO) {
-        log.debug("Request to save GameCharacter : {}", gameCharacterDTO);
-        return gameCharacterRepository.save(gameCharacterMapper.toEntity(gameCharacterDTO)).map(gameCharacterMapper::toDto);
+        return gameCharacterRepository
+            .save(gameCharacterMapper.toEntity(gameCharacterDTO))
+            .flatMap(savedGameCharacter -> {
+                // Construct the prompt for the Replicate API
+                String prompt =
+                    "A newbie pixelated character for the EvoCode platform which has the shape of a " +
+                    savedGameCharacter.getShape() +
+                    " " +
+                    savedGameCharacter.getColor() +
+                    " with " +
+                    savedGameCharacter.getAccessory();
+                // Call the ReplicateService to generate the image
+                return replicateService
+                    .generateImage(prompt)
+                    .flatMap(imageUrl -> {
+                        // Update the character with the image URL
+                        savedGameCharacter.setProfilePicture(imageUrl);
+                        return gameCharacterRepository.save(savedGameCharacter);
+                    });
+            })
+            .map(gameCharacterMapper::toDto)/* .doOnSuccess(character -> {
+                // Send email with unique link after everything is saved
+                String userEmail = character.getEmail();
+                if (userEmail != null && !userEmail.isEmpty()) {
+                    emailService.sendUniqueLinkEmail(userEmail, "Your Game Character Link is here: ", character.getUniqueLink());
+                }
+            })*/
+        ;
+        /*  log.debug("Request to save GameCharacter : {}", gameCharacterDTO);
+         Mono<GameCharacterDTO> savedCharacter = gameCharacterRepository
+        .save(gameCharacterMapper.toEntity(gameCharacterDTO))
+        .map(gameCharacterMapper::toDto);
+
+
+        savedCharacter.subscribe(character -> {
+            String userEmail = character.getEmail();
+            if (userEmail != null && !userEmail.isEmpty()) {
+                emailService.sendUniqueLinkEmail(userEmail, "Your Game Character Link is here: ", character.getUniqueLink());
+            }
+        });
+
+        return savedCharacter;*/
     }
 
     /**
@@ -85,6 +137,15 @@ public class GameCharacterService {
     }
 
     /**
+     * Get all the gameCharacters with eager load of many-to-many relationships.
+     *
+     * @return the list of entities.
+     */
+    public Flux<GameCharacterDTO> findAllWithEagerRelationships(Pageable pageable) {
+        return gameCharacterRepository.findAllWithEagerRelationships(pageable).map(gameCharacterMapper::toDto);
+    }
+
+    /**
      * Returns the number of gameCharacters available.
      * @return the number of entities in the database.
      *
@@ -102,7 +163,12 @@ public class GameCharacterService {
     @Transactional(readOnly = true)
     public Mono<GameCharacterDTO> findOne(Long id) {
         log.debug("Request to get GameCharacter : {}", id);
-        return gameCharacterRepository.findById(id).map(gameCharacterMapper::toDto);
+        return gameCharacterRepository.findOneWithEagerRelationships(id).map(gameCharacterMapper::toDto);
+    }
+
+    public Mono<GameCharacterDTO> findByUniqueLink(String uniqueLink) {
+        log.debug("Request to get GameCharacter via uniqueLink : {}", uniqueLink);
+        return gameCharacterRepository.findByUniqueLink(uniqueLink).map(gameCharacterMapper::toDto);
     }
 
     /**

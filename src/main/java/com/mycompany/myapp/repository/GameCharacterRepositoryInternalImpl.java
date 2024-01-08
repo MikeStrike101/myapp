@@ -121,4 +121,30 @@ class GameCharacterRepositoryInternalImpl extends SimpleR2dbcRepository<GameChar
     public <S extends GameCharacter> Mono<S> save(S entity) {
         return super.save(entity);
     }
+
+    @Override
+    public Flux<GameCharacter> findAllWithEagerRelationships() {
+        return findAllWithEagerRelationships(null);
+    }
+
+    @Override
+    public Flux<GameCharacter> findAllWithEagerRelationships(Pageable page) {
+        // Here you need to define the join logic to fetch related entities eagerly
+        // Below is a simplified example
+        String sql = page != null
+            ? "SELECT * FROM game_character LEFT JOIN progress ON game_character.progress_id = progress.id LEFT JOIN jhi_user ON game_character.user_id = jhi_user.id LIMIT " +
+            page.getPageSize() +
+            " OFFSET " +
+            page.getOffset()
+            : "SELECT * FROM game_character LEFT JOIN progress ON game_character.progress_id = progress.id LEFT JOIN jhi_user ON game_character.user_id = jhi_user.id";
+        return db.sql(sql).map(this::process).all();
+    }
+
+    @Override
+    public Mono<GameCharacter> findOneWithEagerRelationships(Long id) {
+        String sql =
+            "SELECT * FROM game_character LEFT JOIN progress ON game_character.progress_id = progress.id LEFT JOIN jhi_user ON game_character.user_id = jhi_user.id WHERE game_character.id = " +
+            id;
+        return db.sql(sql).map(this::process).one();
+    }
 }

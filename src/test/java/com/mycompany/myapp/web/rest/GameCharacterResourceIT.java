@@ -59,6 +59,9 @@ class GameCharacterResourceIT {
     private static final String DEFAULT_UNIQUE_LINK = "AAAAAAAAAA";
     private static final String UPDATED_UNIQUE_LINK = "BBBBBBBBBB";
 
+    private static final String DEFAULT_PROFILE_PICTURE = "AAAAAAAAAA";
+    private static final String UPDATED_PROFILE_PICTURE = "BBBBBBBBBB";
+
     private static final String ENTITY_API_URL = "/api/game-characters";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -95,7 +98,8 @@ class GameCharacterResourceIT {
             .color(DEFAULT_COLOR)
             .accessory(DEFAULT_ACCESSORY)
             .programmingLanguage(DEFAULT_PROGRAMMING_LANGUAGE)
-            .uniqueLink(DEFAULT_UNIQUE_LINK);
+            .uniqueLink(DEFAULT_UNIQUE_LINK)
+            .profilePicture(DEFAULT_PROFILE_PICTURE);
         return gameCharacter;
     }
 
@@ -115,7 +119,8 @@ class GameCharacterResourceIT {
             .color(UPDATED_COLOR)
             .accessory(UPDATED_ACCESSORY)
             .programmingLanguage(UPDATED_PROGRAMMING_LANGUAGE)
-            .uniqueLink(UPDATED_UNIQUE_LINK);
+            .uniqueLink(UPDATED_UNIQUE_LINK)
+            .profilePicture(UPDATED_PROFILE_PICTURE);
         return gameCharacter;
     }
 
@@ -170,6 +175,7 @@ class GameCharacterResourceIT {
         assertThat(testGameCharacter.getAccessory()).isEqualTo(DEFAULT_ACCESSORY);
         assertThat(testGameCharacter.getProgrammingLanguage()).isEqualTo(DEFAULT_PROGRAMMING_LANGUAGE);
         assertThat(testGameCharacter.getUniqueLink()).isEqualTo(DEFAULT_UNIQUE_LINK);
+        assertThat(testGameCharacter.getProfilePicture()).isEqualTo(DEFAULT_PROFILE_PICTURE);
     }
 
     @Test
@@ -406,7 +412,9 @@ class GameCharacterResourceIT {
             .jsonPath("$.[*].programmingLanguage")
             .value(hasItem(DEFAULT_PROGRAMMING_LANGUAGE))
             .jsonPath("$.[*].uniqueLink")
-            .value(hasItem(DEFAULT_UNIQUE_LINK));
+            .value(hasItem(DEFAULT_UNIQUE_LINK))
+            .jsonPath("$.[*].profilePicture")
+            .value(hasItem(DEFAULT_PROFILE_PICTURE));
     }
 
     @Test
@@ -444,7 +452,9 @@ class GameCharacterResourceIT {
             .jsonPath("$.programmingLanguage")
             .value(is(DEFAULT_PROGRAMMING_LANGUAGE))
             .jsonPath("$.uniqueLink")
-            .value(is(DEFAULT_UNIQUE_LINK));
+            .value(is(DEFAULT_UNIQUE_LINK))
+            .jsonPath("$.profilePicture")
+            .value(is(DEFAULT_PROFILE_PICTURE));
     }
 
     @Test
@@ -477,7 +487,8 @@ class GameCharacterResourceIT {
             .color(UPDATED_COLOR)
             .accessory(UPDATED_ACCESSORY)
             .programmingLanguage(UPDATED_PROGRAMMING_LANGUAGE)
-            .uniqueLink(UPDATED_UNIQUE_LINK);
+            .uniqueLink(UPDATED_UNIQUE_LINK)
+            .profilePicture(UPDATED_PROFILE_PICTURE);
         GameCharacterDTO gameCharacterDTO = gameCharacterMapper.toDto(updatedGameCharacter);
 
         webTestClient
@@ -502,6 +513,7 @@ class GameCharacterResourceIT {
         assertThat(testGameCharacter.getAccessory()).isEqualTo(UPDATED_ACCESSORY);
         assertThat(testGameCharacter.getProgrammingLanguage()).isEqualTo(UPDATED_PROGRAMMING_LANGUAGE);
         assertThat(testGameCharacter.getUniqueLink()).isEqualTo(UPDATED_UNIQUE_LINK);
+        assertThat(testGameCharacter.getProfilePicture()).isEqualTo(UPDATED_PROFILE_PICTURE);
     }
 
     @Test
@@ -615,6 +627,7 @@ class GameCharacterResourceIT {
         assertThat(testGameCharacter.getAccessory()).isEqualTo(UPDATED_ACCESSORY);
         assertThat(testGameCharacter.getProgrammingLanguage()).isEqualTo(UPDATED_PROGRAMMING_LANGUAGE);
         assertThat(testGameCharacter.getUniqueLink()).isEqualTo(UPDATED_UNIQUE_LINK);
+        assertThat(testGameCharacter.getProfilePicture()).isEqualTo(DEFAULT_PROFILE_PICTURE);
     }
 
     @Test
@@ -637,7 +650,8 @@ class GameCharacterResourceIT {
             .color(UPDATED_COLOR)
             .accessory(UPDATED_ACCESSORY)
             .programmingLanguage(UPDATED_PROGRAMMING_LANGUAGE)
-            .uniqueLink(UPDATED_UNIQUE_LINK);
+            .uniqueLink(UPDATED_UNIQUE_LINK)
+            .profilePicture(UPDATED_PROFILE_PICTURE);
 
         webTestClient
             .patch()
@@ -661,6 +675,7 @@ class GameCharacterResourceIT {
         assertThat(testGameCharacter.getAccessory()).isEqualTo(UPDATED_ACCESSORY);
         assertThat(testGameCharacter.getProgrammingLanguage()).isEqualTo(UPDATED_PROGRAMMING_LANGUAGE);
         assertThat(testGameCharacter.getUniqueLink()).isEqualTo(UPDATED_UNIQUE_LINK);
+        assertThat(testGameCharacter.getProfilePicture()).isEqualTo(UPDATED_PROFILE_PICTURE);
     }
 
     @Test
