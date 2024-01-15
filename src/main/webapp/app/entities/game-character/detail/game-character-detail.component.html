@@ -1,14 +1,25 @@
 <div class="content-wrapper">
-  <img [src]="gameCharacter?.profilePicture" class="profile-picture" />
-  <div class="custom-message">
-    <h1>Welcome to Your Adventure</h1>
-    <p>
-      There is a lot of progress you have to make. You've selected {{ gameCharacter?.programmingLanguage }} as your weapon to tackle the
-      challenges ahead. For the moment you have level {{ gameCharacter?.level }}.
-    </p>
-    <p>Your character was created and is located at the top left corner of the screen</p>
-    <p>Are you ready to start your story?</p>
-    <button class="navigation-button" onclick="location.href='path/to/questions/page'">Let's go!</button>
+  <div class="row">
+    <!-- Left Column: Character Details and Message -->
+    <div class="col-md-6">
+      <img [src]="'content/images/' + gameCharacter?.profilePicture" class="profile-picture" alt="Profile Picture" />
+      <div class="custom-message">
+        <h1>{{ 'Welcome to your adventure, ' + gameCharacter?.name }}!</h1>
+        <p>
+          There is a lot of progress you have to make. You've selected {{ gameCharacter?.programmingLanguage }} as your weapon to tackle the
+          challenges ahead. For the moment you have level {{ gameCharacter?.level }}.
+        </p>
+        <p>Your character was created and is located at the top left corner of the screen</p>
+        <p>Are you ready to start your story?</p>
+      </div>
+    </div>
+
+    <!-- Right Column: Code Editor -->
+    <div class="col-md-6">
+      <!-- Code Editor -->
+      <div id="editor" style="height: 400px; width: 100%"></div>
+      <button class="btn btn-primary mt-2" (click)="runCode()">Run Code</button>
+    </div>
   </div>
 </div>
 

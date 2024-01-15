@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.web.ReactivePageableHandlerMethodArgumentResolver;
 import org.springframework.data.web.ReactiveSortHandlerMethodArgumentResolver;
 import org.springframework.util.CollectionUtils;
@@ -16,6 +17,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolver;
 import org.springframework.web.server.WebExceptionHandler;
 import org.zalando.problem.spring.webflux.advice.ProblemExceptionHandler;
@@ -42,6 +46,10 @@ public class WebConfigurer implements WebFluxConfigurer {
     public CorsWebFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = jHipsterProperties.getCors();
+        config.addAllowedOrigin("http://localhost:9000");
+        config.addAllowedMethod("*");
+        config.addAllowedHeader("*");
+        config.setAllowCredentials(true);
         if (!CollectionUtils.isEmpty(config.getAllowedOrigins()) || !CollectionUtils.isEmpty(config.getAllowedOriginPatterns())) {
             log.debug("Registering CORS filter");
             source.registerCorsConfiguration("/api/**", config);
@@ -81,5 +89,10 @@ public class WebConfigurer implements WebFluxConfigurer {
     public CachingHttpHeadersFilter cachingHttpHeadersFilter() {
         // Use a cache filter that only match selected paths
         return new CachingHttpHeadersFilter(TimeUnit.DAYS.toMillis(jHipsterProperties.getHttp().getCache().getTimeToLiveInDays()));
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> staticResourceRouter() {
+        return RouterFunctions.resources("/images/**", new ClassPathResource("images/"));
     }
 }

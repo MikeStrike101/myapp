@@ -22,9 +22,10 @@ html {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100px;
-  height: 100px;
+  width: 125px;
+  height: 125px;
   border-radius: 50%;
+  margin-top: 70px;
   object-fit: cover;
   border: 3px solid white; // Optional: adds a white border around the image
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Optional: adds a subtle shadow

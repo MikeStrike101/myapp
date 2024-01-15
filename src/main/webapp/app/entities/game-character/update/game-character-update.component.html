@@ -42,9 +42,9 @@
     </div>
     <div class="character-container">
       <div class="arrows-container left">
+        <span class="arrow left-arrow" (click)="previousShape()"></span>
         <span class="arrow left-arrow" (click)="previousColor()"></span>
         <span class="arrow left-arrow" (click)="previousAccessory()"></span>
-        <span class="arrow left-arrow" (click)="previousShape()"></span>
       </div>
       <div class="character-icon">
         <div class="shape">
@@ -73,9 +73,9 @@
         </div>
       </div>
       <div class="arrows-container">
+        <span class="arrow right-arrow" (click)="nextShape()"></span>
         <span class="arrow right-arrow" (click)="nextColor()"></span>
         <span class="arrow right-arrow" (click)="nextAccessory()"></span>
-        <span class="arrow right-arrow" (click)="nextShape()"></span>
       </div>
     </div>
     <div>
@@ -119,17 +119,17 @@
         name="progress"
         formControlName="progress"
         [compareWith]="compareProgress"
-        value="0"
+        value="1"
       ></select>
     </div>
 
-    <div>
+    <!--<div>
       <label class="form-label" for="field_user">User</label>
       <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
         <option [ngValue]="null"></option>
         <option [ngValue]="userOption" *ngFor="let userOption of usersSharedCollection">{{ userOption.id }}</option>
       </select>
-    </div>
+    </div>-->
 
     <div>
       <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">

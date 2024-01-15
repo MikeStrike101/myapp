@@ -122,15 +122,18 @@ export class GameCharacterUpdateComponent implements OnInit {
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IGameCharacter>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe({
-      next: () => this.onSaveSuccess(),
+      next: response => this.onSaveSuccess(response),
       error: () => this.onSaveError(),
     });
   }
 
-  protected onSaveSuccess(): void {
-    const uniqueLink = this.gameCharacter?.uniqueLink;
-    this.router.navigate(['/game-character', uniqueLink]);
-    // this.previousState();
+  protected onSaveSuccess(response: HttpResponse<IGameCharacter>): void {
+    const uniqueLink = response.body?.uniqueLink;
+    if (uniqueLink) {
+      this.router.navigate(['/game-character', uniqueLink]).then(() => {});
+    } else {
+      console.error('Unique link is not available in the response');
+    }
   }
 
   protected onSaveError(): void {
@@ -151,16 +154,6 @@ export class GameCharacterUpdateComponent implements OnInit {
     );
     this.usersSharedCollection = this.userService.addUserToCollectionIfMissing<IUser>(this.usersSharedCollection, gameCharacter.user);
   }
-  /* updateAccessoryInForm() {
-  if (this.editForm && this.editForm.controls.accessory) {
-    this.editForm.controls.accessory.setValue(this.currentAccessory);
-  }
-}
-
-onAccessoryChange(newAccessory: string) {
-  this.currentAccessory = newAccessory;
-  this.updateAccessoryInForm();
-}*/
 
   protected loadRelationshipsOptions(): void {
     this.progressService

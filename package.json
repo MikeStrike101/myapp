@@ -92,6 +92,7 @@
     "@fortawesome/free-solid-svg-icons": "6.2.0",
     "@ng-bootstrap/ng-bootstrap": "13.0.0",
     "@popperjs/core": "2.11.6",
+    "ace-builds": "^1.32.3",
     "bootstrap": "5.2.0",
     "bootswatch": "5.2.0",
     "dayjs": "1.11.5",

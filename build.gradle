@@ -191,6 +191,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-loader-tools"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
+    implementation 'commons-io:commons-io:2.8.0'
     testImplementation "org.testcontainers:jdbc"
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.data:spring-data-commons"

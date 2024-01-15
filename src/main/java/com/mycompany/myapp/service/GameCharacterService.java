@@ -2,9 +2,15 @@ package com.mycompany.myapp.service;
 
 import com.mycompany.myapp.domain.GameCharacter;
 import com.mycompany.myapp.repository.GameCharacterRepository;
+import com.mycompany.myapp.repository.ProblemRepository;
+import com.mycompany.myapp.repository.ProgressRepository;
 import com.mycompany.myapp.service.EmailService;
 import com.mycompany.myapp.service.dto.GameCharacterDTO;
 import com.mycompany.myapp.service.mapper.GameCharacterMapper;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -30,16 +36,24 @@ public class GameCharacterService {
 
     private final ReplicateService replicateService;
 
+    private final ProgressRepository progressRepository;
+
+    private final ProblemRepository problemRepository;
+
     public GameCharacterService(
         GameCharacterRepository gameCharacterRepository,
         GameCharacterMapper gameCharacterMapper,
         EmailService emailService,
-        ReplicateService replicateService
+        ReplicateService replicateService,
+        ProgressRepository progressRepository,
+        ProblemRepository problemRepository
     ) {
         this.gameCharacterRepository = gameCharacterRepository;
         this.gameCharacterMapper = gameCharacterMapper;
         this.emailService = emailService;
         this.replicateService = replicateService;
+        this.progressRepository = progressRepository;
+        this.problemRepository = problemRepository;
     }
 
     /**
@@ -64,8 +78,14 @@ public class GameCharacterService {
                 return replicateService
                     .generateImage(prompt)
                     .flatMap(imageUrl -> {
-                        // Update the character with the image URL
-                        savedGameCharacter.setProfilePicture(imageUrl);
+                        try {
+                            String savedImagePath = downloadAndSaveImage(imageUrl, "gameCharacter" + savedGameCharacter.getId());
+                            File savedImageFile = new File(savedImagePath);
+                            savedGameCharacter.setProfilePicture(savedImageFile.getName());
+                        } catch (IOException e) {
+                            log.error("Error saving image", e);
+                        }
+
                         return gameCharacterRepository.save(savedGameCharacter);
                     });
             })
@@ -75,22 +95,7 @@ public class GameCharacterService {
                 if (userEmail != null && !userEmail.isEmpty()) {
                     emailService.sendUniqueLinkEmail(userEmail, "Your Game Character Link is here: ", character.getUniqueLink());
                 }
-            })*/
-        ;
-        /*  log.debug("Request to save GameCharacter : {}", gameCharacterDTO);
-         Mono<GameCharacterDTO> savedCharacter = gameCharacterRepository
-        .save(gameCharacterMapper.toEntity(gameCharacterDTO))
-        .map(gameCharacterMapper::toDto);
-
-
-        savedCharacter.subscribe(character -> {
-            String userEmail = character.getEmail();
-            if (userEmail != null && !userEmail.isEmpty()) {
-                emailService.sendUniqueLinkEmail(userEmail, "Your Game Character Link is here: ", character.getUniqueLink());
-            }
-        });
-
-        return savedCharacter;*/
+            })*/;
     }
 
     /**
@@ -180,5 +185,16 @@ public class GameCharacterService {
     public Mono<Void> delete(Long id) {
         log.debug("Request to delete GameCharacter : {}", id);
         return gameCharacterRepository.deleteById(id);
+    }
+
+    private String downloadAndSaveImage(String imageUrl, String fileName) throws IOException {
+        URL url = new URL(imageUrl);
+        File targetDirectory = new File("src/main/webapp/content/images");
+        if (!targetDirectory.exists()) {
+            targetDirectory.mkdirs();
+        }
+        File outputFile = new File(targetDirectory, fileName + ".png");
+        FileUtils.copyURLToFile(url, outputFile);
+        return outputFile.getAbsolutePath();
     }
 }
