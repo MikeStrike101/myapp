@@ -29,7 +29,7 @@ public class CodeExecutionResource {
 
         return webClient
             .post()
-            .uri("/api/v2/execute")
+            .uri("/api/v2/piston/execute")
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(pistonRequestBody)
             .retrieve()

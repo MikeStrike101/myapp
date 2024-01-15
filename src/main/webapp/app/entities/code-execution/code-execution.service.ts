@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApplicationConfigService } from 'app/core/config/application-config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CodeExecutionService {
-  private backendUrl = 'http://localhost:8080/api';
+  protected resourceUrl = this.applicationConfigService.getEndpointFor('api/execute-code');
 
-  constructor(private http: HttpClient) {}
+  constructor(protected http: HttpClient, protected applicationConfigService: ApplicationConfigService) {}
 
   executeCode(code: string, language: string, version: string): Observable<any> {
     const payload = {
@@ -20,6 +21,6 @@ export class CodeExecutionService {
         },
       ],
     };
-    return this.http.post<any>(`${this.backendUrl}/execute-code`, payload);
+    return this.http.post<any>(this.resourceUrl, payload);
   }
 }

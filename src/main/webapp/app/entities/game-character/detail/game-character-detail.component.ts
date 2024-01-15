@@ -72,7 +72,7 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
 
   runCode(): void {
     const language = 'python'; // For example, determine this dynamically
-    const version = '3.8'; // For example, determine this dynamically
+    const version = '3.10.0'; // For example, determine this dynamically
     const code = this.editorCode; // The code from your code editor
 
     this.codeExecutionService.executeCode(code, language, version).subscribe(
