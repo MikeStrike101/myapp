@@ -2,6 +2,10 @@ package com.mycompany.myapp.domain;
 
 import com.mycompany.myapp.domain.enumeration.Status;
 import java.io.Serializable;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -32,6 +36,10 @@ public class Progress implements Serializable {
     @Min(value = 0)
     @Column("xp")
     private Integer xp;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_character_id")
+    private GameCharacter gameCharacter;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 

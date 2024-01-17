@@ -1,6 +1,8 @@
 package com.mycompany.myapp.domain;
 
 import java.io.Serializable;
+import javax.persistence.CascadeType;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -62,6 +64,7 @@ public class GameCharacter implements Serializable {
     private String profilePicture;
 
     @Transient
+    @OneToOne(mappedBy = "gameCharacter", cascade = CascadeType.ALL)
     private Progress progress;
 
     @Transient

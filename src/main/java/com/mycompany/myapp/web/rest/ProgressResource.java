@@ -74,6 +74,21 @@ public class ProgressResource {
             });
     }
 
+    @GetMapping("/progress/{uniqueLinkId}")
+    public ResponseEntity<?> getCurrentQuestion(@PathVariable String uniqueLinkId) {
+        try {
+            Integer currentQuestion = progressService.getCurrentQuestion(uniqueLinkId);
+            if (currentQuestion != null) {
+                return ResponseEntity.ok(currentQuestion);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Current question not found for the given unique link.");
+            }
+        } catch (Exception e) {
+            // Log the exception details as well for debugging
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while retrieving the current question.");
+        }
+    }
+
     /**
      * {@code PUT  /progresses/:id} : Updates an existing progress.
      *

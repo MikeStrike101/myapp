@@ -1,10 +1,12 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CodeExecutionService } from 'app/entities/code-execution/code-execution.service';
 
 import { IGameCharacter } from '../game-character.model';
 import { ProblemService } from 'app/entities/problem/service/problem.service';
 import * as ace from 'ace-builds';
+import { ProgressService } from 'app/entities/progress/service/progress.service';
+import { IProblem } from 'app/entities/problem/problem.model';
 interface LanguageModeMapping {
   [language: string]: string | undefined; // This is the index signature
 }
@@ -18,24 +20,19 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
   gameCharacter: IGameCharacter | null = null;
   editor?: ace.Ace.Editor;
   editorCode: string = '';
+  showQuestion = false; // Flag to indicate whether to show the question
+  currentProblem: IProblem | null = null; // The current problem data
 
   constructor(
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
+    protected codeExecutionService: CodeExecutionService,
+    protected progressService: ProgressService,
     protected problemService: ProblemService,
-    protected codeExecutionService: CodeExecutionService
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngAfterViewInit(): void {
-    this.editor = ace.edit('editor');
-    this.editor.getSession().on('change', () => {
-      if (this.editor != null) this.editorCode = this.editor.getValue();
-    });
-
-    const programmingLanguage = this.gameCharacter?.programmingLanguage ?? null;
-    this.setEditorMode(programmingLanguage);
-    // Additional editor configurations
-  }
+  ngAfterViewInit(): void {}
 
   setEditorMode(programmingLanguage: string | null) {
     if (programmingLanguage) {
@@ -46,12 +43,49 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
     }
   }
 
+  displayQuestion(): void {
+    if (this.gameCharacter?.id) {
+      this.progressService.find(this.gameCharacter.id).subscribe(
+        progressResponse => {
+          const currentQuestionId = progressResponse.body?.currentLesson;
+          if (currentQuestionId) {
+            this.problemService.find(currentQuestionId).subscribe(
+              problemResponse => {
+                this.currentProblem = problemResponse.body;
+                this.showQuestion = true;
+                this.cdr.detectChanges();
+                this.initializeEditor();
+              },
+              error => {
+                console.error('Error fetching problem details:', error);
+              }
+            );
+          }
+        },
+        error => {
+          console.error('Error fetching progress:', error);
+        }
+      );
+    }
+  }
+  initializeEditor(): void {
+    if (this.showQuestion && !this.editor && document.getElementById('editor')) {
+      this.editor = ace.edit('editor');
+      this.editor.getSession().on('change', () => {
+        if (this.editor != null) this.editorCode = this.editor.getValue();
+      });
+
+      const programmingLanguage = this.gameCharacter?.programmingLanguage ?? null;
+      this.setEditorMode(programmingLanguage);
+
+      // ... other editor configurations ...
+    }
+  }
+
   getEditorModeFromLanguage(language: string): string | undefined {
-    // Allow undefined as a return type
     const languageModeMapping: LanguageModeMapping = {
       JavaScript: 'javascript',
       Python: 'python',
-      // Add other languages and their corresponding Ace modes here
     };
     return languageModeMapping[language];
   }
@@ -59,10 +93,6 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ gameCharacter }) => {
       this.gameCharacter = gameCharacter;
-      if (this.editor && this.gameCharacter) {
-        const programmingLanguage = this.gameCharacter.programmingLanguage ?? null;
-        this.setEditorMode(programmingLanguage);
-      }
     });
   }
 
@@ -71,9 +101,9 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
   }
 
   runCode(): void {
-    const language = 'python'; // For example, determine this dynamically
-    const version = '3.10.0'; // For example, determine this dynamically
-    const code = this.editorCode; // The code from your code editor
+    const language = 'python';
+    const version = '3.10.0';
+    const code = this.editorCode;
 
     this.codeExecutionService.executeCode(code, language, version).subscribe(
       response => {

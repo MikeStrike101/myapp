@@ -6,6 +6,7 @@ import com.mycompany.myapp.service.dto.ProgressDTO;
 import com.mycompany.myapp.service.mapper.ProgressMapper;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,11 @@ public class ProgressService {
     public ProgressService(ProgressRepository progressRepository, ProgressMapper progressMapper) {
         this.progressRepository = progressRepository;
         this.progressMapper = progressMapper;
+    }
+
+    public Integer getCurrentQuestion(String uniqueLinkId) {
+        Optional<Progress> progress = progressRepository.findByUniqueLinkId(uniqueLinkId);
+        return progress.map(Progress::getCurrentLesson).orElse(null);
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.mycompany.myapp.repository;
 
 import com.mycompany.myapp.domain.Progress;
+import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.relational.core.query.Criteria;
@@ -26,6 +27,9 @@ public interface ProgressRepository extends ReactiveCrudRepository<Progress, Lon
 
     @Override
     Mono<Void> deleteById(Long id);
+
+    @Query("SELECT p FROM Progress p JOIN p.gameCharacter gc WHERE gc.uniqueLink = :uniqueLink")
+    Optional<Progress> findByUniqueLinkId(String uniqueLinkId);
 }
 
 interface ProgressRepositoryInternal {

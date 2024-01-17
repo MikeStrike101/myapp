@@ -1,100 +1,30 @@
-<div class="content-wrapper">
-  <div class="row">
-    <!-- Left Column: Character Details and Message -->
-    <div class="col-md-6">
-      <img [src]="'content/images/' + gameCharacter?.profilePicture" class="profile-picture" alt="Profile Picture" />
-      <div class="custom-message">
-        <h1>{{ 'Welcome to your adventure, ' + gameCharacter?.name }}!</h1>
+<div class="container">
+  <img [src]="'content/images/' + gameCharacter?.profilePicture" class="profile-picture rounded-circle" alt="Profile Picture" />
+  <div class="content-wrapper">
+    <div *ngIf="!showQuestion; else questionContent">
+      <div class="problem-content">
+        <h1>Welcome to your adventure, {{ gameCharacter?.name }}!</h1>
         <p>
           There is a lot of progress you have to make. You've selected {{ gameCharacter?.programmingLanguage }} as your weapon to tackle the
           challenges ahead. For the moment you have level {{ gameCharacter?.level }}.
         </p>
         <p>Your character was created and is located at the top left corner of the screen</p>
         <p>Are you ready to start your story?</p>
+        <button class="btn btn-primary" (click)="displayQuestion()">Let's Go!</button>
       </div>
     </div>
 
-    <!-- Right Column: Code Editor -->
-    <div class="col-md-6">
-      <!-- Code Editor -->
-      <div id="editor" style="height: 400px; width: 100%"></div>
-      <button class="btn btn-primary mt-2" (click)="runCode()">Run Code</button>
-    </div>
+    <ng-template #questionContent>
+      <!-- Problem Description -->
+      <div class="problem-content">
+        <h2>Current Question: {{ currentProblem?.title }}</h2>
+        <p>{{ currentProblem?.description }}</p>
+      </div>
+      <!-- Editor Container -->
+      <div class="editor-container">
+        <div id="editor"></div>
+        <button class="btn btn-primary mt-2" (click)="runCode()">Run Code</button>
+      </div>
+    </ng-template>
   </div>
 </div>
-
-<!--<div class="d-flex justify-content-center">
-  <div class="col-8">
-    <div *ngIf="gameCharacter">
-      <h2 data-cy="gameCharacterDetailsHeading"><span>Game Character</span></h2>
-
-      <hr />
-
-      <jhi-alert-error></jhi-alert-error>
-
-      <jhi-alert></jhi-alert>
-
-      <dl class="row-md jh-entity-details">
-        <dt><span>ID</span></dt>
-        <dd>
-          <span>{{ gameCharacter.id }}</span>
-        </dd>
-        <dt><span>Name</span></dt>
-        <dd>
-          <span>{{ gameCharacter.name }}</span>
-        </dd>
-        <dt><span>Email</span></dt>
-        <dd>
-          <span>{{ gameCharacter.email }}</span>
-        </dd>
-        <dt><span>Level</span></dt>
-        <dd>
-          <span>{{ gameCharacter.level }}</span>
-        </dd>
-        <dt><span>Experience</span></dt>
-        <dd>
-          <span>{{ gameCharacter.experience }}</span>
-        </dd>
-        <dt><span>Shape</span></dt>
-        <dd>
-          <span>{{ gameCharacter.shape }}</span>
-        </dd>
-        <dt><span>Color</span></dt>
-        <dd>
-          <span>{{ gameCharacter.color }}</span>
-        </dd>
-        <dt><span>Accessory</span></dt>
-        <dd>
-          <span>{{ gameCharacter.accessory }}</span>
-        </dd>
-        <dt><span>Programming Language</span></dt>
-        <dd>
-          <span>{{ gameCharacter.programmingLanguage }}</span>
-        </dd>
-        <dt><span>Unique Link</span></dt>
-        <dd>
-          <span>{{ gameCharacter.uniqueLink }}</span>
-        </dd>
-        <dt><span>Progress</span></dt>
-        <dd>
-          <div *ngIf="gameCharacter.progress">
-            <a [routerLink]="['/progress', gameCharacter.progress.id, 'view']">{{ gameCharacter.progress.id }}</a>
-          </div>
-        </dd>
-        <dt><span>User</span></dt>
-        <dd>
-          <span>{{ gameCharacter.user?.id }}</span>
-        </dd>
-      </dl>
-
-      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
-        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
-      </button>
-
-      <button type="button" [routerLink]="['/game-character', gameCharacter.id, 'edit']" class="btn btn-primary">
-        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
-      </button>
-    </div>
-  </div>
-</div>
--->
