@@ -19,7 +19,7 @@
     <include file = "20240105220446_added_entity_constraints_TestCase.xml" relativeToChangelogFile="true"/>
     <include file = "20240105220447_added_entity_UserProblem.xml" relativeToChangelogFile="true"/>
     <include file = "20240105220447_added_entity_constraints_UserProblem.xml" relativeToChangelogFile="true"/>
-
+    <include file = "20240119225713_added_entity_ExecutionCode.xml" relativeToChangelogFile = "true" />
 
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->

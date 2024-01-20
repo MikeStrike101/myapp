@@ -17,6 +17,12 @@ entity GameCharacter {
   profilePicture String
 }
 
+entity ExecutionCode {
+  questionNumber Integer required,
+  code TextBlob required,
+  gameCharacter Integer required
+}
+
 entity Problem {
   title String required minlength(5) maxlength(150),
   description String required minlength(20),
@@ -46,7 +52,9 @@ relationship ManyToOne {
 }
 
 relationship OneToOne {
-  GameCharacter{progress} to Progress
+  GameCharacter{progress} to Progress,
+  GameCharacter{executionCode} to ExecutionCode
+
 }
 
 enum Status {
@@ -59,6 +67,6 @@ entity Progress {
   xp Integer required min(0)
 }
 
-paginate GameCharacter, Problem, TestCase, UserProblem with pagination
-dto GameCharacter, Progress, Problem, TestCase, UserProblem with mapstruct
+paginate GameCharacter, Problem, TestCase, UserProblem, ExecutionCode with pagination
+dto GameCharacter, Progress, Problem, TestCase, UserProblem, ExecutionCode with mapstruct
 

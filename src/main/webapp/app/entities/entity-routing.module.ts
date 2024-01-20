@@ -29,6 +29,11 @@ import { RouterModule } from '@angular/router';
         data: { pageTitle: 'UserProblems' },
         loadChildren: () => import('./user-problem/user-problem.module').then(m => m.UserProblemModule),
       },
+      {
+        path: 'execution-code',
+        data: { pageTitle: 'ExecutionCodes' },
+        loadChildren: () => import('./execution-code/execution-code.module').then(m => m.ExecutionCodeModule),
+      },
       /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
     ]),
   ],

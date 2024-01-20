@@ -70,6 +70,12 @@
       "relationshipType": "one-to-one"
     },
     {
+      "otherEntityName": "executionCode",
+      "ownerSide": true,
+      "relationshipName": "executionCode",
+      "relationshipType": "one-to-one"
+    },
+    {
       "otherEntityName": "user",
       "otherEntityRelationshipName": "gameCharacters",
       "relationshipName": "user",

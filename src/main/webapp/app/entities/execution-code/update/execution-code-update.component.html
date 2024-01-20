@@ -1,0 +1,84 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-execution-code-heading" data-cy="ExecutionCodeCreateUpdateHeading">Create or edit a Execution Code</h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="row mb-3" *ngIf="editForm.controls.id.value !== null">
+          <label class="form-label" for="field_id">ID</label>
+          <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_questionNumber">Question Number</label>
+          <input
+            type="number"
+            class="form-control"
+            name="questionNumber"
+            id="field_questionNumber"
+            data-cy="questionNumber"
+            formControlName="questionNumber"
+          />
+          <div
+            *ngIf="
+              editForm.get('questionNumber')!.invalid && (editForm.get('questionNumber')!.dirty || editForm.get('questionNumber')!.touched)
+            "
+          >
+            <small class="form-text text-danger" *ngIf="editForm.get('questionNumber')?.errors?.required"> This field is required. </small>
+            <small class="form-text text-danger" [hidden]="!editForm.get('questionNumber')?.errors?.number">
+              This field should be a number.
+            </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_code">Code</label>
+          <textarea class="form-control" name="code" id="field_code" data-cy="code" formControlName="code"></textarea>
+          <div *ngIf="editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)">
+            <small class="form-text text-danger" *ngIf="editForm.get('code')?.errors?.required"> This field is required. </small>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="form-label" for="field_gameCharacter">Game Character</label>
+          <input
+            type="number"
+            class="form-control"
+            name="gameCharacter"
+            id="field_gameCharacter"
+            data-cy="gameCharacter"
+            formControlName="gameCharacter"
+          />
+          <div
+            *ngIf="
+              editForm.get('gameCharacter')!.invalid && (editForm.get('gameCharacter')!.dirty || editForm.get('gameCharacter')!.touched)
+            "
+          >
+            <small class="form-text text-danger" *ngIf="editForm.get('gameCharacter')?.errors?.required"> This field is required. </small>
+            <small class="form-text text-danger" [hidden]="!editForm.get('gameCharacter')?.errors?.number">
+              This field should be a number.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

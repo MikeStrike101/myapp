@@ -7,8 +7,11 @@ import { ProblemService } from 'app/entities/problem/service/problem.service';
 import * as ace from 'ace-builds';
 import { ProgressService } from 'app/entities/progress/service/progress.service';
 import { IProblem } from 'app/entities/problem/problem.model';
+import { ExecutionCodeService } from 'app/entities/execution-code/service/execution-code.service';
+import { IExecutionCode } from 'app/entities/execution-code/execution-code.model';
+
 interface LanguageModeMapping {
-  [language: string]: string | undefined; // This is the index signature
+  [language: string]: string | undefined;
 }
 
 @Component({
@@ -20,8 +23,9 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
   gameCharacter: IGameCharacter | null = null;
   editor?: ace.Ace.Editor;
   editorCode: string = '';
-  showQuestion = false; // Flag to indicate whether to show the question
-  currentProblem: IProblem | null = null; // The current problem data
+  showQuestion = false;
+  currentProblem: IProblem | null = null;
+  currentExecutionCode: IExecutionCode | null = null;
 
   constructor(
     protected activatedRoute: ActivatedRoute,
@@ -29,7 +33,8 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
     protected codeExecutionService: CodeExecutionService,
     protected progressService: ProgressService,
     protected problemService: ProblemService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    protected executionCodeService: ExecutionCodeService
   ) {}
 
   ngAfterViewInit(): void {}
@@ -55,6 +60,7 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
                 this.showQuestion = true;
                 this.cdr.detectChanges();
                 this.initializeEditor();
+                this.loadAndSetExecutionCode();
               },
               error => {
                 console.error('Error fetching problem details:', error);
@@ -68,7 +74,7 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
       );
     }
   }
-  initializeEditor(): void {
+  initializeEditor(codeToLoad?: string): void {
     if (this.showQuestion && !this.editor && document.getElementById('editor')) {
       this.editor = ace.edit('editor');
       this.editor.getSession().on('change', () => {
@@ -78,7 +84,12 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
       const programmingLanguage = this.gameCharacter?.programmingLanguage ?? null;
       this.setEditorMode(programmingLanguage);
 
-      // ... other editor configurations ...
+      // If there's code to load, set it in the editor
+      if (codeToLoad && this.editor) {
+        this.editor.setValue(codeToLoad);
+        this.editorCode = codeToLoad;
+      }
+      this.loadAndSetExecutionCode();
     }
   }
 
@@ -98,6 +109,47 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
 
   previousState(): void {
     window.history.back();
+  }
+  loadAndSetExecutionCode(): void {
+    if (this.gameCharacter?.id && this.currentProblem?.id) {
+      this.executionCodeService.findByGameCharacterId(this.gameCharacter.id).subscribe({
+        next: response => {
+          const executionCodes = response.body;
+          if (executionCodes) {
+            const matchingCode = executionCodes.find(ec => ec.questionNumber === this.currentProblem?.id);
+            if (matchingCode && matchingCode.code != null) {
+              this.currentExecutionCode = matchingCode;
+              if (this.editor) {
+                this.editor.setValue(matchingCode.code); // Set the code in the editor
+                this.editorCode = matchingCode.code; // Update the local editorCode variable
+              } else {
+                console.error('Editor has not been initialized yet.');
+              }
+            }
+          }
+        },
+        error: err => {
+          console.error('Error retrieving execution codes:', err);
+        },
+      });
+    }
+  }
+
+  saveCode(): void {
+    if (this.currentExecutionCode && this.editorCode) {
+      // Update the code property of the currentExecutionCode object
+      const updatedExecutionCode: IExecutionCode = {
+        ...this.currentExecutionCode,
+        code: this.editorCode,
+      };
+
+      this.executionCodeService.saveCode(updatedExecutionCode).subscribe({
+        next: () => console.log('Code saved successfully'),
+        error: err => console.error('Failed to save code', err),
+      });
+    } else {
+      console.error('Cannot save the code. Make sure the execution code and editor are properly initialized.');
+    }
   }
 
   runCode(): void {

@@ -22,10 +22,6 @@ export class ProgressService {
     return this.http.post<IProgress>(this.resourceUrl, progress, { observe: 'response' });
   }
 
-  getCurrentQuestion(uniqueLinkId: string): Observable<number> {
-    return this.http.get<number>(`/api/progress/${uniqueLinkId}`);
-  }
-
   update(progress: IProgress): Observable<EntityResponseType> {
     return this.http.put<IProgress>(`${this.resourceUrl}/${this.getProgressIdentifier(progress)}`, progress, { observe: 'response' });
   }

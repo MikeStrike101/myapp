@@ -1,0 +1,32 @@
+{
+  "applications": "*",
+  "changelogDate": "20240119225713",
+  "dto": "mapstruct",
+  "embedded": false,
+  "entityTableName": "execution_code",
+  "fields": [
+    {
+      "fieldName": "questionNumber",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "code",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "gameCharacter",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "ExecutionCode",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [],
+  "service": "serviceClass"
+}

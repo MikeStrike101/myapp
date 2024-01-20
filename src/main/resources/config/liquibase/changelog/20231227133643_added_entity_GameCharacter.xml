@@ -47,6 +47,9 @@
             <column name="progress_id" type="bigint">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_game_character__progress_id" />
             </column>
+            <column name="execution_code_id" type="bigint">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_game_character__execution_code_id" />
+            </column>
             <column name="user_id" type="varchar(100)">
                 <constraints nullable="true" />
             </column>

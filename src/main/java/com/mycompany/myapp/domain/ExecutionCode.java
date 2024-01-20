@@ -1,6 +1,5 @@
 package com.mycompany.myapp.domain;
 
-import com.mycompany.myapp.domain.enumeration.Status;
 import java.io.Serializable;
 import javax.validation.constraints.*;
 import org.springframework.data.annotation.Id;
@@ -9,11 +8,11 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 /**
- * A Progress.
+ * A ExecutionCode.
  */
-@Table("progress")
+@Table("execution_code")
 @SuppressWarnings("common-java:DuplicatedBlocks")
-public class Progress implements Serializable {
+public class ExecutionCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,16 +21,15 @@ public class Progress implements Serializable {
     private Long id;
 
     @NotNull(message = "must not be null")
-    @Column("status")
-    private Status status;
+    @Column("question_number")
+    private Integer questionNumber;
 
-    @Column("current_lesson")
-    private Integer currentLesson;
+    @Column("code")
+    private String code;
 
     @NotNull(message = "must not be null")
-    @Min(value = 0)
-    @Column("xp")
-    private Integer xp;
+    @Column("game_character")
+    private Integer gameCharacter;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -39,7 +37,7 @@ public class Progress implements Serializable {
         return this.id;
     }
 
-    public Progress id(Long id) {
+    public ExecutionCode id(Long id) {
         this.setId(id);
         return this;
     }
@@ -48,43 +46,43 @@ public class Progress implements Serializable {
         this.id = id;
     }
 
-    public Status getStatus() {
-        return this.status;
+    public Integer getQuestionNumber() {
+        return this.questionNumber;
     }
 
-    public Progress status(Status status) {
-        this.setStatus(status);
+    public ExecutionCode questionNumber(Integer questionNumber) {
+        this.setQuestionNumber(questionNumber);
         return this;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setQuestionNumber(Integer questionNumber) {
+        this.questionNumber = questionNumber;
     }
 
-    public Integer getCurrentLesson() {
-        return this.currentLesson;
+    public String getCode() {
+        return this.code;
     }
 
-    public Progress currentLesson(Integer currentLesson) {
-        this.setCurrentLesson(currentLesson);
+    public ExecutionCode code(String code) {
+        this.setCode(code);
         return this;
     }
 
-    public void setCurrentLesson(Integer currentLesson) {
-        this.currentLesson = currentLesson;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public Integer getXp() {
-        return this.xp;
+    public Integer getGameCharacter() {
+        return this.gameCharacter;
     }
 
-    public Progress xp(Integer xp) {
-        this.setXp(xp);
+    public ExecutionCode gameCharacter(Integer gameCharacter) {
+        this.setGameCharacter(gameCharacter);
         return this;
     }
 
-    public void setXp(Integer xp) {
-        this.xp = xp;
+    public void setGameCharacter(Integer gameCharacter) {
+        this.gameCharacter = gameCharacter;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
@@ -94,10 +92,10 @@ public class Progress implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Progress)) {
+        if (!(o instanceof ExecutionCode)) {
             return false;
         }
-        return id != null && id.equals(((Progress) o).id);
+        return id != null && id.equals(((ExecutionCode) o).id);
     }
 
     @Override
@@ -109,11 +107,11 @@ public class Progress implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "Progress{" +
+        return "ExecutionCode{" +
             "id=" + getId() +
-            ", status='" + getStatus() + "'" +
-            ", currentLesson=" + getCurrentLesson() +
-            ", xp=" + getXp() +
+            ", questionNumber=" + getQuestionNumber() +
+            ", code='" + getCode() + "'" +
+            ", gameCharacter=" + getGameCharacter() +
             "}";
     }
 }

@@ -14,6 +14,12 @@
                                  referencedColumnNames="id"
                                  referencedTableName="progress"/>
 
+        <addForeignKeyConstraint baseColumnNames="execution_code_id"
+                                 baseTableName="game_character"
+                                 constraintName="fk_game_character__execution_code_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="execution_code"/>
+
         <addForeignKeyConstraint baseColumnNames="user_id"
                                  baseTableName="game_character"
                                  constraintName="fk_game_character__user_id"
