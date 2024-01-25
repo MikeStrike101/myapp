@@ -1,6 +1,9 @@
 package com.mycompany.myapp.service;
 
 import com.mycompany.myapp.domain.GameCharacter;
+import com.mycompany.myapp.domain.Progress;
+import com.mycompany.myapp.domain.enumeration.Status;
+import com.mycompany.myapp.repository.CustomProgressRepository;
 import com.mycompany.myapp.repository.GameCharacterRepository;
 import com.mycompany.myapp.repository.ProblemRepository;
 import com.mycompany.myapp.repository.ProgressRepository;
@@ -36,24 +39,23 @@ public class GameCharacterService {
 
     private final ReplicateService replicateService;
 
-    private final ProgressRepository progressRepository;
-
     private final ProblemRepository problemRepository;
+    private final CustomProgressRepository customProgressRepository;
 
     public GameCharacterService(
         GameCharacterRepository gameCharacterRepository,
         GameCharacterMapper gameCharacterMapper,
         EmailService emailService,
         ReplicateService replicateService,
-        ProgressRepository progressRepository,
-        ProblemRepository problemRepository
+        ProblemRepository problemRepository,
+        CustomProgressRepository customProgressRepository
     ) {
         this.gameCharacterRepository = gameCharacterRepository;
         this.gameCharacterMapper = gameCharacterMapper;
         this.emailService = emailService;
         this.replicateService = replicateService;
-        this.progressRepository = progressRepository;
         this.problemRepository = problemRepository;
+        this.customProgressRepository = customProgressRepository;
     }
 
     /**
@@ -62,6 +64,7 @@ public class GameCharacterService {
      * @param gameCharacterDTO the entity to save.
      * @return the persisted entity.
      */
+
     public Mono<GameCharacterDTO> save(GameCharacterDTO gameCharacterDTO) {
         return gameCharacterRepository
             .save(gameCharacterMapper.toEntity(gameCharacterDTO))
@@ -82,11 +85,20 @@ public class GameCharacterService {
                             String savedImagePath = downloadAndSaveImage(imageUrl, "gameCharacter" + savedGameCharacter.getId());
                             File savedImageFile = new File(savedImagePath);
                             savedGameCharacter.setProfilePicture(savedImageFile.getName());
+
+                            Progress progress = new Progress();
+                            progress.setId(savedGameCharacter.getId());
+                            progress.setStatus(Status.STARTED);
+                            progress.setCurrentLesson(1);
+                            progress.setXp(0);
+
+                            return customProgressRepository
+                                .insertWithCustomId(progress)
+                                .then(gameCharacterRepository.save(savedGameCharacter));
                         } catch (IOException e) {
                             log.error("Error saving image", e);
+                            return Mono.error(e);
                         }
-
-                        return gameCharacterRepository.save(savedGameCharacter);
                     });
             })
             .map(gameCharacterMapper::toDto)/* .doOnSuccess(character -> {

@@ -1,6 +1,7 @@
 package com.mycompany.myapp.repository;
 
 import com.mycompany.myapp.domain.Progress;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.relational.core.query.Criteria;
@@ -14,7 +15,8 @@ import reactor.core.publisher.Mono;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface ProgressRepository extends ReactiveCrudRepository<Progress, Long>, ProgressRepositoryInternal {
+@Primary
+public interface ProgressRepository extends ReactiveCrudRepository<Progress, Long>, ProgressRepositoryInternal, CustomProgressRepository {
     @Override
     <S extends Progress> Mono<S> save(S entity);
 

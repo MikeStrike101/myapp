@@ -1,31 +1,16 @@
 <div class="container">
   <img [src]="'content/images/' + gameCharacter?.profilePicture" class="profile-picture rounded-circle" alt="Profile Picture" />
   <div class="content-wrapper">
-    <div *ngIf="!showQuestion; else questionContent">
-      <div class="problem-content">
-        <h1>Welcome to your adventure, {{ gameCharacter?.name }}!</h1>
-        <p>
-          There is a lot of progress you have to make. You've selected {{ gameCharacter?.programmingLanguage }} as your weapon to tackle the
-          challenges ahead. For the moment you have level {{ gameCharacter?.level }}.
-        </p>
-        <p>Your character was created and is located at the top left corner of the screen</p>
-        <p>Are you ready to start your story?</p>
-        <button class="btn btn-primary" (click)="displayQuestion()">Let's Go!</button>
-      </div>
+    <!-- Problem Description -->
+    <div class="problem-content">
+      <h2>Current Question: {{ currentProblem?.title }}</h2>
+      <p>{{ currentProblem?.description }}</p>
     </div>
-
-    <ng-template #questionContent>
-      <!-- Problem Description -->
-      <div class="problem-content">
-        <h2>Current Question: {{ currentProblem?.title }}</h2>
-        <p>{{ currentProblem?.description }}</p>
-      </div>
-      <!-- Editor Container -->
-      <div class="editor-container">
-        <div id="editor"></div>
-        <button class="btn btn-primary mt-2" (click)="runCode()">Run Code</button>
-        <button class="btn btn-success mt-2" (click)="saveCode()">Save Code</button>
-      </div>
-    </ng-template>
+    <!-- Editor Container -->
+    <div class="editor-container">
+      <div id="editor"></div>
+      <button class="btn btn-primary mt-2" (click)="runCode()">Run Code</button>
+      <button class="btn btn-success mt-2" (click)="saveCode()">Save Code</button>
+    </div>
   </div>
 </div>

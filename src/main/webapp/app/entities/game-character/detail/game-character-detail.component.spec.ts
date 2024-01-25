@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { GameCharacterDetailComponent } from './game-character-detail.component';
 
@@ -10,12 +11,14 @@ describe('GameCharacter Management Detail Component', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       declarations: [GameCharacterDetailComponent],
       providers: [
         {
           provide: ActivatedRoute,
           useValue: { data: of({ gameCharacter: { id: 123 } }) },
         },
+        // Add any other necessary mock providers here
       ],
     })
       .overrideTemplate(GameCharacterDetailComponent, '')

@@ -30,6 +30,8 @@ spring:
   liquibase:
     contexts: test
     change-log: classpath:/config/liquibase/changelog/master.xml
+    parameters:
+      search-path: ./src/main/resources/config/liquibase/changelog
   jackson:
     serialization:
       write-durations-as-timestamps: false
@@ -75,14 +77,16 @@ jhipster:
   mail:
     from: myapp@localhost.com
     base-url: http://127.0.0.1:8080
-  logging:
-    # To test json console appender
-    use-json-format: false
-    logstash:
-      enabled: false
-      host: localhost
-      port: 5000
-      queue-size: 512
+logging:
+  level:
+    org.springframework.web.reactive.function.client.ExchangeFunctions: TRACE
+  # To test json console appender
+  use-json-format: false
+  logstash:
+    enabled: false
+    host: localhost
+    port: 5000
+    queue-size: 512
 
 # ===================================================================
 # Application specific properties

@@ -13,8 +13,8 @@ export class CodeExecutionService {
 
   executeCode(code: string, language: string, version: string): Observable<any> {
     const payload = {
-      language: language,
-      version: version,
+      language,
+      version,
       files: [
         {
           content: code,

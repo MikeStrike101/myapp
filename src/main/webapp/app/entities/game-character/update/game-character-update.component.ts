@@ -21,7 +21,8 @@ import { UserService } from 'app/entities/user/user.service';
 export class GameCharacterUpdateComponent implements OnInit {
   isSaving = false;
   gameCharacter: IGameCharacter | null = null;
-
+  showLetsGoMessage = false;
+  uniqueLink: string | null = null;
   progressesSharedCollection: IProgress[] = [];
   usersSharedCollection: IUser[] = [];
 
@@ -130,7 +131,10 @@ export class GameCharacterUpdateComponent implements OnInit {
   protected onSaveSuccess(response: HttpResponse<IGameCharacter>): void {
     const uniqueLink = response.body?.uniqueLink;
     if (uniqueLink) {
-      this.router.navigate(['/game-character', uniqueLink]).then(() => {});
+      this.uniqueLink = uniqueLink;
+      this.showLetsGoMessage = true;
+      // Optionally, you can remove or hide the save button here
+      // ...
     } else {
       console.error('Unique link is not available in the response');
     }

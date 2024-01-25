@@ -116,6 +116,8 @@ management:
 spring:
   liquibase:
     change-log: classpath:/config/liquibase/changelog/master.xml
+    parameters:
+      search-path: ./src/main/resources/config/liquibase/changelog
   mail:
     host: smtp.example.com
     port: 587

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CodeExecutionService } from 'app/entities/code-execution/code-execution.service';
 
@@ -19,10 +19,10 @@ interface LanguageModeMapping {
   templateUrl: './game-character-detail.component.html',
   styleUrls: ['./game-character-detail.component.scss'],
 })
-export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
+export class GameCharacterDetailComponent implements OnInit {
   gameCharacter: IGameCharacter | null = null;
   editor?: ace.Ace.Editor;
-  editorCode: string = '';
+  editorCode = '';
   showQuestion = false;
   currentProblem: IProblem | null = null;
   currentExecutionCode: IExecutionCode | null = null;
@@ -37,9 +37,7 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
     protected executionCodeService: ExecutionCodeService
   ) {}
 
-  ngAfterViewInit(): void {}
-
-  setEditorMode(programmingLanguage: string | null) {
+  setEditorMode(programmingLanguage: string | null): void {
     if (programmingLanguage) {
       const editorMode = this.getEditorModeFromLanguage(programmingLanguage);
       if (editorMode) {
@@ -78,14 +76,14 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
     if (this.showQuestion && !this.editor && document.getElementById('editor')) {
       this.editor = ace.edit('editor');
       this.editor.getSession().on('change', () => {
-        if (this.editor != null) this.editorCode = this.editor.getValue();
+        // Use optional chaining to prevent the error
+        this.editorCode = this.editor?.getValue() ?? '';
       });
 
       const programmingLanguage = this.gameCharacter?.programmingLanguage ?? null;
       this.setEditorMode(programmingLanguage);
 
-      // If there's code to load, set it in the editor
-      if (codeToLoad && this.editor) {
+      if (codeToLoad) {
         this.editor.setValue(codeToLoad);
         this.editorCode = codeToLoad;
       }
@@ -104,28 +102,55 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ gameCharacter }) => {
       this.gameCharacter = gameCharacter;
+      this.loadCurrentQuestionAndEditor();
     });
   }
 
   previousState(): void {
     window.history.back();
   }
+
+  loadCurrentQuestionAndEditor(): void {
+    if (this.gameCharacter?.id) {
+      this.progressService.find(this.gameCharacter.id).subscribe(
+        progressResponse => {
+          const currentQuestionId = progressResponse.body?.currentLesson;
+          if (currentQuestionId) {
+            this.problemService.find(currentQuestionId).subscribe(
+              problemResponse => {
+                this.currentProblem = problemResponse.body;
+                this.showQuestion = true;
+                this.cdr.detectChanges();
+                this.initializeEditor();
+                this.loadAndSetExecutionCode();
+              },
+              error => {
+                console.error('Error fetching problem details:', error);
+              }
+            );
+          }
+        },
+        error => {
+          console.error('Error fetching progress:', error);
+        }
+      );
+    }
+  }
+
   loadAndSetExecutionCode(): void {
-    if (this.gameCharacter?.id && this.currentProblem?.id) {
-      this.executionCodeService.findByGameCharacterId(this.gameCharacter.id).subscribe({
+    const gameCharacterId = this.gameCharacter?.id;
+    const currentProblemId = this.currentProblem?.id;
+
+    if (gameCharacterId && currentProblemId) {
+      this.executionCodeService.findByGameCharacterId(gameCharacterId).subscribe({
         next: response => {
           const executionCodes = response.body;
-          if (executionCodes) {
-            const matchingCode = executionCodes.find(ec => ec.questionNumber === this.currentProblem?.id);
-            if (matchingCode && matchingCode.code != null) {
-              this.currentExecutionCode = matchingCode;
-              if (this.editor) {
-                this.editor.setValue(matchingCode.code); // Set the code in the editor
-                this.editorCode = matchingCode.code; // Update the local editorCode variable
-              } else {
-                console.error('Editor has not been initialized yet.');
-              }
-            }
+          const matchingCode = executionCodes?.find(ec => ec.questionNumber === currentProblemId);
+
+          if (matchingCode?.code != null) {
+            this.currentExecutionCode = matchingCode;
+            this.editor?.setValue(matchingCode.code); // Set the code in the editor using optional chaining
+            this.editorCode = matchingCode.code; // Update the local editorCode variable
           }
         },
         error: err => {
@@ -144,6 +169,7 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
       };
 
       this.executionCodeService.saveCode(updatedExecutionCode).subscribe({
+        // eslint-disable-next-line no-console
         next: () => console.log('Code saved successfully'),
         error: err => console.error('Failed to save code', err),
       });
@@ -159,6 +185,7 @@ export class GameCharacterDetailComponent implements OnInit, AfterViewInit {
 
     this.codeExecutionService.executeCode(code, language, version).subscribe(
       response => {
+        // eslint-disable-next-line no-console
         console.log('Compiler output:', response);
         // Handle the successful response here
       },

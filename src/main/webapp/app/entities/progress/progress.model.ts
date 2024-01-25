@@ -8,3 +8,6 @@ export interface IProgress {
 }
 
 export type NewProgress = Omit<IProgress, 'id'> & { id: null };
+export interface IManualProgress extends Omit<IProgress, 'id'> {
+  id: number;
+}

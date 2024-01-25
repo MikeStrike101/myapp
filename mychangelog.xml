@@ -1,0 +1,215 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="mihai (generated)" id="1706136050819-1">
+        <createTable tableName="game_character">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="game_character_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="level" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="experience" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shape" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="color" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="accessory" type="VARCHAR(255)"/>
+            <column name="programming_language" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unique_link" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="progress_id" type="BIGINT"/>
+            <column name="user_id" type="VARCHAR(100)"/>
+            <column name="profile_picture" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-2">
+        <createTable tableName="jhi_user">
+            <column name="id" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_user_pkey"/>
+            </column>
+            <column name="login" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(50)"/>
+            <column name="last_name" type="VARCHAR(50)"/>
+            <column name="email" type="VARCHAR(191)"/>
+            <column name="image_url" type="VARCHAR(256)"/>
+            <column name="activated" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lang_key" type="VARCHAR(10)"/>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-3">
+        <addUniqueConstraint columnNames="progress_id" constraintName="ux_game_character__progress_id" tableName="game_character"/>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-4">
+        <addUniqueConstraint columnNames="email" constraintName="ux_user_email" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-5">
+        <addUniqueConstraint columnNames="login" constraintName="ux_user_login" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-6">
+        <createTable tableName="execution_code">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="execution_code_pkey"/>
+            </column>
+            <column name="question_number" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="code" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="game_character" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-7">
+        <createTable tableName="jhi_authority">
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_authority_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-8">
+        <createTable tableName="jhi_date_time_wrapper">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_date_time_wrapperPK"/>
+            </column>
+            <column name="instant" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="local_date_time" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="offset_date_time" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="zoned_date_time" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="local_time" type="time(6) WITHOUT TIME ZONE"/>
+            <column name="offset_time" type="time(6) WITHOUT TIME ZONE"/>
+            <column name="local_date" type="date"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-9">
+        <createTable tableName="jhi_user_authority">
+            <column name="user_id" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_user_authority_pkey"/>
+            </column>
+            <column name="authority_name" type="VARCHAR(50)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="jhi_user_authority_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-10">
+        <createTable tableName="problem">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="problem_pkey"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="level" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="xp_reward" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-11">
+        <createTable tableName="progress">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="progress_pkey"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="current_lesson" type="INTEGER"/>
+            <column name="xp" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-12">
+        <createTable tableName="rel_game_character__problem">
+            <column name="problem_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="game_character_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-13">
+        <createTable tableName="test_case">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="test_case_pkey"/>
+            </column>
+            <column name="input" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="output" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="problem_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-14">
+        <createTable tableName="user_problem">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="user_problem_pkey"/>
+            </column>
+            <column name="solved_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="passed_test_cases" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="xp_awarded" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(100)"/>
+            <column name="problem_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-15">
+        <addPrimaryKey columnNames="game_character_id, problem_id" constraintName="rel_game_character__problem_pkey" tableName="rel_game_character__problem"/>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-16">
+        <addForeignKeyConstraint baseColumnNames="authority_name" baseTableName="jhi_user_authority" constraintName="fk_authority_name" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="name" referencedTableName="jhi_authority" validate="true"/>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-17">
+        <addForeignKeyConstraint baseColumnNames="progress_id" baseTableName="game_character" constraintName="fk_game_character__progress_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="progress" validate="true"/>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-18">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="game_character" constraintName="fk_game_character__user_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="jhi_user" validate="true"/>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-19">
+        <addForeignKeyConstraint baseColumnNames="problem_id" baseTableName="test_case" constraintName="fk_test_case__problem_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="problem" validate="true"/>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-20">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="jhi_user_authority" constraintName="fk_user_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="jhi_user" validate="true"/>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-21">
+        <addForeignKeyConstraint baseColumnNames="problem_id" baseTableName="user_problem" constraintName="fk_user_problem__problem_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="problem" validate="true"/>
+    </changeSet>
+    <changeSet author="mihai (generated)" id="1706136050819-22">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_problem" constraintName="fk_user_problem__user_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="jhi_user" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

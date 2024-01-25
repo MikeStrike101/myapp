@@ -38,6 +38,7 @@ public class ProgressService {
      * @param progressDTO the entity to save.
      * @return the persisted entity.
      */
+    @Transactional
     public Mono<ProgressDTO> save(ProgressDTO progressDTO) {
         log.debug("Request to save Progress : {}", progressDTO);
         return progressRepository.save(progressMapper.toEntity(progressDTO)).map(progressMapper::toDto);

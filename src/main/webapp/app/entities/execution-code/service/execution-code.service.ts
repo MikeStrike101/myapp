@@ -6,7 +6,6 @@ import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
 import { IExecutionCode, NewExecutionCode } from '../execution-code.model';
-import { Pagination } from 'app/core/models/pagination.model';
 
 export type PartialUpdateExecutionCode = Partial<IExecutionCode> & Pick<IExecutionCode, 'id'>;
 
@@ -20,7 +19,7 @@ export class ExecutionCodeService {
   constructor(protected http: HttpClient, protected applicationConfigService: ApplicationConfigService) {}
 
   create(executionCode: NewExecutionCode): Observable<EntityResponseType> {
-    console.log(executionCode);
+    // console.log(executionCode);
     return this.http.post<IExecutionCode>(this.resourceUrl, executionCode, { observe: 'response' });
   }
 

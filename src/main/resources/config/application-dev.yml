@@ -50,6 +50,8 @@ spring:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
     url: jdbc:postgresql://localhost:5432/myapp
+    parameters:
+      search-path: ./src/main/resources/config/liquibase/changelog
   messages:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   r2dbc:
