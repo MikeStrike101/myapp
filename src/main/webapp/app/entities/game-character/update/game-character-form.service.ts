@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-
+import { HttpClient } from '@angular/common/http';
 import { IGameCharacter, NewGameCharacter } from '../game-character.model';
-
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { adjectives } from './adjectives';
+import { nouns } from './nouns';
 /**
  * A partial Type with required key is used as form input.
  */
@@ -35,6 +38,43 @@ export type GameCharacterFormGroup = FormGroup<GameCharacterFormGroupContent>;
 
 @Injectable({ providedIn: 'root' })
 export class GameCharacterFormService {
+  private adjectives: string[] = adjectives;
+  private nouns: string[] = nouns;
+
+  constructor(private http: HttpClient) {
+    this.loadWords(); // Load words as soon as the service is created
+  }
+
+  private loadWords(): void {
+    this.adjectives = adjectives;
+    this.nouns = nouns;
+  }
+
+  public generateUniqueLink(): Observable<string> {
+    const adjective = this.adjectives[Math.floor(Math.random() * this.adjectives.length)];
+    const noun = this.nouns[Math.floor(Math.random() * this.nouns.length)];
+    const randomNumber = Math.floor(1000 + Math.random() * 9000);
+    const potentialLink = `${adjective}-${noun}-${randomNumber}`.toLowerCase();
+
+    // Check the uniqueness of the link by making an HTTP GET request to the backend
+    return this.http.get<boolean>(`/api/game-characters/unique-link/${potentialLink}`).pipe(
+      switchMap(isUnique => {
+        if (isUnique) {
+          // If the link is unique, return it
+          return of(potentialLink);
+        } else {
+          // If the link is not unique, recursively call generateUniqueLink until a unique one is found
+          return this.generateUniqueLink();
+        }
+      }),
+      catchError(error => {
+        // Handle error appropriately
+        console.error('Error checking link uniqueness', error);
+        return of('Error generating link');
+      })
+    );
+  }
+
   createGameCharacterFormGroup(gameCharacter: GameCharacterFormGroupInput = { id: null }): GameCharacterFormGroup {
     const gameCharacterRawValue = {
       ...this.getFormDefaults(),
@@ -100,7 +140,7 @@ export class GameCharacterFormService {
         experience: { value: gameCharacterRawValue.experience, disabled: true },
         level: { value: gameCharacterRawValue.level, disabled: true },
         progress: { value: gameCharacterRawValue.progress, disabled: true },
-        uniqueLink: { value: this.generateRandomString(10), disabled: true },
+        uniqueLink: { value: this.generateUniqueLink(), disabled: true },
       } as any /* cast to workaround https://github.com/angular/angular/issues/46458 */
     );
   }
@@ -120,7 +160,7 @@ export class GameCharacterFormService {
       level: 0,
       experience: 0,
       progress: null,
-      uniqueLink: this.generateRandomString(10),
+      uniqueLink: '',
     };
   }
 }

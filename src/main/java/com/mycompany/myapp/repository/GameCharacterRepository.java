@@ -57,6 +57,8 @@ public interface GameCharacterRepository extends ReactiveCrudRepository<GameChar
 
     @Override
     Mono<Void> deleteById(Long id);
+
+    Mono<Boolean> existsByUniqueLink(String uniqueLink);
 }
 
 interface GameCharacterRepositoryInternal {

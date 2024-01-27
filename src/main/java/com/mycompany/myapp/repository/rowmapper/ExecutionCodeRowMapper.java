@@ -27,7 +27,7 @@ public class ExecutionCodeRowMapper implements BiFunction<Row, String, Execution
         entity.setId(converter.fromRow(row, prefix + "_id", Long.class));
         entity.setQuestionNumber(converter.fromRow(row, prefix + "_question_number", Integer.class));
         entity.setCode(converter.fromRow(row, prefix + "_code", String.class));
-        entity.setGameCharacter(converter.fromRow(row, prefix + "_game_character", Integer.class));
+        entity.setGameCharacter(converter.fromRow(row, prefix + "_game_character", Long.class));
         return entity;
     }
 }

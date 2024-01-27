@@ -29,7 +29,7 @@ public class ExecutionCode implements Serializable {
 
     @NotNull(message = "must not be null")
     @Column("game_character")
-    private Integer gameCharacter;
+    private Long gameCharacter;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -72,16 +72,16 @@ public class ExecutionCode implements Serializable {
         this.code = code;
     }
 
-    public Integer getGameCharacter() {
+    public Long getGameCharacter() {
         return this.gameCharacter;
     }
 
-    public ExecutionCode gameCharacter(Integer gameCharacter) {
+    public ExecutionCode gameCharacter(Long gameCharacter) {
         this.setGameCharacter(gameCharacter);
         return this;
     }
 
-    public void setGameCharacter(Integer gameCharacter) {
+    public void setGameCharacter(Long gameCharacter) {
         this.gameCharacter = gameCharacter;
     }
 

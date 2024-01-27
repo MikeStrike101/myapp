@@ -39,8 +39,8 @@ class ExecutionCodeResourceIT {
     private static final String DEFAULT_CODE = "AAAAAAAAAA";
     private static final String UPDATED_CODE = "BBBBBBBBBB";
 
-    private static final Integer DEFAULT_GAME_CHARACTER = 1;
-    private static final Integer UPDATED_GAME_CHARACTER = 2;
+    private static final long DEFAULT_GAME_CHARACTER = 1;
+    private static final long UPDATED_GAME_CHARACTER = 2;
 
     private static final String ENTITY_API_URL = "/api/execution-codes";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";

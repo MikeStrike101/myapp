@@ -12,6 +12,7 @@ import { IProgress } from 'app/entities/progress/progress.model';
 import { ProgressService } from 'app/entities/progress/service/progress.service';
 import { IUser } from 'app/entities/user/user.model';
 import { UserService } from 'app/entities/user/user.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'jhi-game-character-update',
@@ -25,6 +26,9 @@ export class GameCharacterUpdateComponent implements OnInit {
   uniqueLink: string | null = null;
   progressesSharedCollection: IProgress[] = [];
   usersSharedCollection: IUser[] = [];
+
+  private adjectives: string[] = [];
+  private nouns: string[] = [];
 
   programmingLanguages: string[] = ['JavaScript', 'Python', 'Java', 'C#', 'C++', 'PHP', 'TypeScript', 'Ruby', 'Swift', 'Other'];
 
@@ -43,7 +47,8 @@ export class GameCharacterUpdateComponent implements OnInit {
     protected progressService: ProgressService,
     protected userService: UserService,
     protected activatedRoute: ActivatedRoute,
-    protected router: Router
+    protected router: Router,
+    protected http: HttpClient
   ) {}
 
   compareProgress = (o1: IProgress | null, o2: IProgress | null): boolean => this.progressService.compareProgress(o1, o2);
@@ -54,10 +59,17 @@ export class GameCharacterUpdateComponent implements OnInit {
     this.activatedRoute.data.subscribe(({ gameCharacter }) => {
       this.gameCharacter = gameCharacter;
       this.editForm = this.gameCharacterFormService.createGameCharacterFormGroup(gameCharacter);
+
+      // Generate unique link if the game character is new
+      if (!gameCharacter || !gameCharacter.id) {
+        this.gameCharacterFormService.generateUniqueLink().subscribe(uniqueLink => {
+          this.editForm.get('uniqueLink')!.setValue(uniqueLink);
+        });
+      }
+
       if (gameCharacter) {
         this.updateForm(gameCharacter);
       }
-
       this.loadRelationshipsOptions();
     });
   }
@@ -111,11 +123,22 @@ export class GameCharacterUpdateComponent implements OnInit {
     const gameCharacter = this.gameCharacterFormService.getGameCharacter(this.editForm);
 
     if (gameCharacter.id === null) {
-      const newGameCharacter: NewGameCharacter = {
-        ...gameCharacter,
-        id: null,
-      };
-      this.subscribeToSaveResponse(this.gameCharacterService.create(newGameCharacter));
+      this.gameCharacterFormService.generateUniqueLink().subscribe(
+        (uniqueLink: string) => {
+          // Type uniqueLink explicitly
+          const newGameCharacter: NewGameCharacter = {
+            ...gameCharacter,
+            id: null,
+            uniqueLink: uniqueLink, // Set the unique link here
+          };
+          this.subscribeToSaveResponse(this.gameCharacterService.create(newGameCharacter));
+        },
+        error => {
+          console.error('Error generating unique link:', error);
+          this.isSaving = false;
+          // Handle the error appropriately
+        }
+      );
     } else {
       this.subscribeToSaveResponse(this.gameCharacterService.update(gameCharacter));
     }

@@ -1,18 +1,25 @@
 package com.mycompany.myapp.service;
 
+import com.mycompany.myapp.domain.ExecutionCode;
 import com.mycompany.myapp.domain.GameCharacter;
 import com.mycompany.myapp.domain.Progress;
 import com.mycompany.myapp.domain.enumeration.Status;
 import com.mycompany.myapp.repository.CustomProgressRepository;
+import com.mycompany.myapp.repository.ExecutionCodeRepository;
 import com.mycompany.myapp.repository.GameCharacterRepository;
 import com.mycompany.myapp.repository.ProblemRepository;
 import com.mycompany.myapp.repository.ProgressRepository;
 import com.mycompany.myapp.service.EmailService;
+import com.mycompany.myapp.service.dto.ExecutionCodeDTO;
 import com.mycompany.myapp.service.dto.GameCharacterDTO;
 import com.mycompany.myapp.service.mapper.GameCharacterMapper;
+import com.mycompany.myapp.util.SampleCodeUtil;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +46,8 @@ public class GameCharacterService {
 
     private final ReplicateService replicateService;
 
+    private final ExecutionCodeRepository executionCodeRepository;
+
     private final ProblemRepository problemRepository;
     private final CustomProgressRepository customProgressRepository;
 
@@ -48,7 +57,8 @@ public class GameCharacterService {
         EmailService emailService,
         ReplicateService replicateService,
         ProblemRepository problemRepository,
-        CustomProgressRepository customProgressRepository
+        CustomProgressRepository customProgressRepository,
+        ExecutionCodeRepository executionCodeRepository
     ) {
         this.gameCharacterRepository = gameCharacterRepository;
         this.gameCharacterMapper = gameCharacterMapper;
@@ -56,6 +66,7 @@ public class GameCharacterService {
         this.replicateService = replicateService;
         this.problemRepository = problemRepository;
         this.customProgressRepository = customProgressRepository;
+        this.executionCodeRepository = executionCodeRepository;
     }
 
     /**
@@ -92,8 +103,11 @@ public class GameCharacterService {
                             progress.setCurrentLesson(1);
                             progress.setXp(0);
 
+                            savedGameCharacter.setProgress(progress);
+
                             return customProgressRepository
                                 .insertWithCustomId(progress)
+                                .then(insertDefaultSampleCodes(savedGameCharacter))
                                 .then(gameCharacterRepository.save(savedGameCharacter));
                         } catch (IOException e) {
                             log.error("Error saving image", e);
@@ -108,6 +122,37 @@ public class GameCharacterService {
                     emailService.sendUniqueLinkEmail(userEmail, "Your Game Character Link is here: ", character.getUniqueLink());
                 }
             })*/;
+    }
+
+    private Mono<Void> insertDefaultSampleCodes(GameCharacter savedGameCharacter) {
+        String programmingLanguage = savedGameCharacter.getProgrammingLanguage();
+        List<ExecutionCodeDTO> defaultCodes = getDefaultCodesForLanguage(programmingLanguage);
+
+        return Flux
+            .fromIterable(defaultCodes)
+            .flatMap(code -> {
+                ExecutionCode executionCode = new ExecutionCode();
+                executionCode.setGameCharacter(savedGameCharacter.getId());
+                executionCode.setQuestionNumber(code.getQuestionNumber());
+                executionCode.setCode(code.getCode());
+                executionCode.setGameCharacter(savedGameCharacter.getId());
+                return executionCodeRepository.save(executionCode);
+            })
+            .then();
+    }
+
+    private List<ExecutionCodeDTO> getDefaultCodesForLanguage(String language) {
+        Map<Integer, String> sampleCodes = SampleCodeUtil.getSampleCodesForLanguage(language);
+        List<ExecutionCodeDTO> defaultCodes = new ArrayList<>();
+
+        sampleCodes.forEach((questionNumber, code) -> {
+            ExecutionCodeDTO executionCodeDTO = new ExecutionCodeDTO();
+            executionCodeDTO.setQuestionNumber(questionNumber);
+            executionCodeDTO.setCode(code);
+            defaultCodes.add(executionCodeDTO);
+        });
+
+        return defaultCodes;
     }
 
     /**
@@ -208,5 +253,9 @@ public class GameCharacterService {
         File outputFile = new File(targetDirectory, fileName + ".png");
         FileUtils.copyURLToFile(url, outputFile);
         return outputFile.getAbsolutePath();
+    }
+
+    public Mono<Boolean> isLinkUnique(String uniqueLink) {
+        return gameCharacterRepository.existsByUniqueLink(uniqueLink).map(exists -> !exists);
     }
 }

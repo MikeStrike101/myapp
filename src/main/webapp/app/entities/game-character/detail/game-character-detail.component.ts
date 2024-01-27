@@ -9,6 +9,8 @@ import { ProgressService } from 'app/entities/progress/service/progress.service'
 import { IProblem } from 'app/entities/problem/problem.model';
 import { ExecutionCodeService } from 'app/entities/execution-code/service/execution-code.service';
 import { IExecutionCode } from 'app/entities/execution-code/execution-code.model';
+import 'ace-builds/src-noconflict/mode-python';
+import 'ace-builds/src-noconflict/mode-java';
 
 interface LanguageModeMapping {
   [language: string]: string | undefined;
@@ -93,8 +95,8 @@ export class GameCharacterDetailComponent implements OnInit {
 
   getEditorModeFromLanguage(language: string): string | undefined {
     const languageModeMapping: LanguageModeMapping = {
-      JavaScript: 'javascript',
       Python: 'python',
+      Java: 'java',
     };
     return languageModeMapping[language];
   }

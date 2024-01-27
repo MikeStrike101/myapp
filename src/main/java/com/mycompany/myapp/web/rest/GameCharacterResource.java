@@ -216,6 +216,12 @@ public class GameCharacterResource {
         }
     }
 
+    @GetMapping("/game-characters/unique-link/{link}")
+    public Mono<ResponseEntity<Boolean>> checkUniqueLink(@PathVariable String link) {
+        Mono<Boolean> isUnique = gameCharacterService.isLinkUnique(link);
+        return isUnique.map(unique -> ResponseEntity.ok().body(unique)).defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
     /**
      * {@code DELETE  /game-characters/:id} : delete the "id" gameCharacter.
      *

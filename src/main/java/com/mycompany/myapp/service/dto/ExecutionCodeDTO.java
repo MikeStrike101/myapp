@@ -20,7 +20,7 @@ public class ExecutionCodeDTO implements Serializable {
     private String code;
 
     @NotNull(message = "must not be null")
-    private Integer gameCharacter;
+    private Long gameCharacter;
 
     public Long getId() {
         return id;
@@ -46,11 +46,11 @@ public class ExecutionCodeDTO implements Serializable {
         this.code = code;
     }
 
-    public Integer getGameCharacter() {
+    public Long getGameCharacter() {
         return gameCharacter;
     }
 
-    public void setGameCharacter(Integer gameCharacter) {
+    public void setGameCharacter(Long gameCharacter) {
         this.gameCharacter = gameCharacter;
     }
 
