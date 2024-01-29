@@ -12,5 +12,12 @@
       <button class="btn btn-primary mt-2" (click)="runCode()">Run Code</button>
       <button class="btn btn-success mt-2" (click)="saveCode()">Save Code</button>
     </div>
+    <!-- Success Message and Continue Button -->
+    <div *ngIf="showSuccessMessage" class="success-message">
+      <div class="alert alert-success mt-3">
+        <p>Code compiled successfully! Press the button to continue.</p>
+        <button class="btn btn-success mt-2" (click)="continueProgress()">Continue</button>
+      </div>
+    </div>
   </div>
 </div>

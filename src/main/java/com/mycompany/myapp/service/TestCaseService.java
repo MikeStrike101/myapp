@@ -4,6 +4,7 @@ import com.mycompany.myapp.domain.TestCase;
 import com.mycompany.myapp.repository.TestCaseRepository;
 import com.mycompany.myapp.service.dto.TestCaseDTO;
 import com.mycompany.myapp.service.mapper.TestCaseMapper;
+import java.util.NoSuchElementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -114,5 +115,14 @@ public class TestCaseService {
     public Mono<Void> delete(Long id) {
         log.debug("Request to delete TestCase : {}", id);
         return testCaseRepository.deleteById(id);
+    }
+
+    public Mono<String> getExpectedOutputByQuestionId(Integer questionId) {
+        return testCaseRepository
+            .findByProblem(questionId)
+            .doOnNext(testCase -> log.debug("Fetched TestCase for questionId {}: {}", questionId, testCase))
+            .map(TestCase::getOutput)
+            .doOnNext(output -> log.debug("Expected output for questionId {}: {}", questionId, output))
+            .switchIfEmpty(Mono.error(new NoSuchElementException("Test case not found for question ID: " + questionId)));
     }
 }

@@ -3,12 +3,14 @@ package com.mycompany.myapp.web.rest;
 import com.mycompany.myapp.repository.ProgressRepository;
 import com.mycompany.myapp.service.ProgressService;
 import com.mycompany.myapp.service.dto.ProgressDTO;
+import com.mycompany.myapp.service.dto.UpdateProgressRequestDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -96,7 +98,12 @@ public class ProgressResource {
         if (!Objects.equals(id, progressDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
-
+        log.debug("REST request to update Progress : {}, {}", id, progressDTO);
+        if (progressDTO != null) {
+            log.debug("Received ProgressDTO: {}", progressDTO);
+        } else {
+            log.debug("Received null ProgressDTO");
+        }
         return progressRepository
             .existsById(id)
             .flatMap(exists -> {
@@ -211,6 +218,20 @@ public class ProgressResource {
                         .noContent()
                         .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
                         .build()
+                )
+            );
+    }
+
+    @PostMapping("/progresses/update-progress")
+    public Mono<ResponseEntity<Map<String, Object>>> updateProgress(@Valid @RequestBody UpdateProgressRequestDTO updateRequest) {
+        return progressService
+            .updateUserProgress(updateRequest)
+            .then(Mono.just(ResponseEntity.ok().body(Collections.<String, Object>singletonMap("message", "Update successful"))))
+            .onErrorResume(e ->
+                Mono.just(
+                    ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Collections.<String, Object>singletonMap("error", e.getMessage()))
                 )
             );
     }

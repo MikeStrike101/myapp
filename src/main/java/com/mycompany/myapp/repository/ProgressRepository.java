@@ -3,6 +3,7 @@ package com.mycompany.myapp.repository;
 import com.mycompany.myapp.domain.Progress;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.r2dbc.repository.Modifying;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
@@ -28,6 +29,10 @@ public interface ProgressRepository extends ReactiveCrudRepository<Progress, Lon
 
     @Override
     Mono<Void> deleteById(Long id);
+
+    @Modifying
+    @Query("UPDATE progress SET current_lesson = :currentLesson, xp = :xp WHERE id = :id")
+    Mono<Integer> updateProgressCustom(Long id, Integer currentLesson, Integer xp);
 }
 
 interface ProgressRepositoryInternal {

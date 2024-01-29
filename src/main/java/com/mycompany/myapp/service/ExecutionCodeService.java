@@ -122,4 +122,8 @@ public class ExecutionCodeService {
     public Flux<ExecutionCodeDTO> findByGameCharacterId(Long gameCharacterId) {
         return executionCodeRepository.findByGameCharacterId(gameCharacterId).map(executionCodeMapper::toDto);
     }
+
+    public Mono<ExecutionCode> findCodeByGameCharacterAndQuestionNumber(Long gameCharacterId, Integer questionNumber) {
+        return executionCodeRepository.findByGameCharacterAndQuestionNumber(gameCharacterId, questionNumber);
+    }
 }

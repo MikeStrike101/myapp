@@ -1,12 +1,13 @@
 package com.mycompany.myapp.service;
 
+import com.mycompany.myapp.domain.GameCharacter;
 import com.mycompany.myapp.domain.Progress;
 import com.mycompany.myapp.repository.ProgressRepository;
+import com.mycompany.myapp.service.dto.GameCharacterDTO;
 import com.mycompany.myapp.service.dto.ProgressDTO;
+import com.mycompany.myapp.service.dto.UpdateProgressRequestDTO;
+import com.mycompany.myapp.service.mapper.GameCharacterMapper;
 import com.mycompany.myapp.service.mapper.ProgressMapper;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,9 +28,20 @@ public class ProgressService {
 
     private final ProgressMapper progressMapper;
 
-    public ProgressService(ProgressRepository progressRepository, ProgressMapper progressMapper) {
+    private final GameCharacterService gameCharacterService;
+
+    private final GameCharacterMapper gameCharacterMapper;
+
+    public ProgressService(
+        ProgressRepository progressRepository,
+        ProgressMapper progressMapper,
+        GameCharacterService gameCharacterService,
+        GameCharacterMapper gameCharacterMapper
+    ) {
         this.progressRepository = progressRepository;
         this.progressMapper = progressMapper;
+        this.gameCharacterService = gameCharacterService;
+        this.gameCharacterMapper = gameCharacterMapper;
     }
 
     /**
@@ -116,5 +128,31 @@ public class ProgressService {
     public Mono<Void> delete(Long id) {
         log.debug("Request to delete Progress : {}", id);
         return progressRepository.deleteById(id);
+    }
+
+    public Mono<Progress> findByProgressId(Long progressId) {
+        return progressRepository.findById(progressId);
+    }
+
+    public Mono<Void> updateUserProgress(UpdateProgressRequestDTO updateRequest) {
+        Mono<Progress> progressUpdate = progressRepository
+            .findById(updateRequest.getGameCharacterId())
+            .flatMap(progress -> {
+                progress.setCurrentLesson(updateRequest.getNextQuestionNumber());
+                progress.setXp(updateRequest.getNewXP());
+                return progressRepository.save(progress);
+            });
+
+        Mono<GameCharacterDTO> gameCharacterUpdate = gameCharacterService
+            .findByGameCharacterId(updateRequest.getGameCharacterId())
+            .flatMap(gameCharacter -> {
+                GameCharacterDTO gameCharacterDTO = gameCharacterMapper.toDto(gameCharacter);
+                gameCharacterDTO.setExperience(updateRequest.getNewXP());
+                gameCharacterDTO.setLevel(updateRequest.getNewLevel());
+                // No need to convert DTO back to entity, save the DTO directly
+                return gameCharacterService.save(gameCharacterDTO);
+            });
+
+        return Mono.when(progressUpdate, gameCharacterUpdate).then();
     }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CodeExecutionService } from 'app/entities/code-execution/code-execution.service';
+import isEqual from 'lodash/isEqual';
 
 import { IGameCharacter } from '../game-character.model';
 import { ProblemService } from 'app/entities/problem/service/problem.service';
@@ -8,12 +9,20 @@ import * as ace from 'ace-builds';
 import { ProgressService } from 'app/entities/progress/service/progress.service';
 import { IProblem } from 'app/entities/problem/problem.model';
 import { ExecutionCodeService } from 'app/entities/execution-code/service/execution-code.service';
-import { IExecutionCode } from 'app/entities/execution-code/execution-code.model';
+import { IExecutionCode, NewExecutionCode } from 'app/entities/execution-code/execution-code.model';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/mode-java';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { IProgress } from 'app/entities/progress/progress.model';
+import { Observable } from 'rxjs';
+import { UpdateProgressRequest } from './update-progress-request.model';
 
 interface LanguageModeMapping {
   [language: string]: string | undefined;
+}
+
+interface CodeSubmissionResponse {
+  message: string;
 }
 
 @Component({
@@ -28,6 +37,7 @@ export class GameCharacterDetailComponent implements OnInit {
   showQuestion = false;
   currentProblem: IProblem | null = null;
   currentExecutionCode: IExecutionCode | null = null;
+  showSuccessMessage = false;
 
   constructor(
     protected activatedRoute: ActivatedRoute,
@@ -151,8 +161,8 @@ export class GameCharacterDetailComponent implements OnInit {
 
           if (matchingCode?.code != null) {
             this.currentExecutionCode = matchingCode;
-            this.editor?.setValue(matchingCode.code); // Set the code in the editor using optional chaining
-            this.editorCode = matchingCode.code; // Update the local editorCode variable
+            this.editor?.setValue(matchingCode.code);
+            this.editorCode = matchingCode.code;
           }
         },
         error: err => {
@@ -181,20 +191,88 @@ export class GameCharacterDetailComponent implements OnInit {
   }
 
   runCode(): void {
-    const language = 'python';
+    const language = this.gameCharacter?.programmingLanguage || 'python';
     const version = '3.10.0';
     const code = this.editorCode;
+    const gameCharacterId = this.gameCharacter?.id;
+    const questionNumber = this.currentProblem?.id;
+    const xpReward = this.currentProblem?.xpReward;
+    const level = this.currentProblem?.level;
+    const currentExperience = this.gameCharacter?.experience;
 
-    this.codeExecutionService.executeCode(code, language, version).subscribe(
-      response => {
-        // eslint-disable-next-line no-console
-        console.log('Compiler output:', response);
-        // Handle the successful response here
-      },
-      error => {
-        console.error('Error executing code:', error);
-        // Handle the error here
-      }
-    );
+    if (gameCharacterId && questionNumber && currentExperience != null && xpReward != null && level != null) {
+      const executionCode: NewExecutionCode = {
+        id: null,
+        code: code,
+        gameCharacter: gameCharacterId,
+        questionNumber: questionNumber,
+      };
+
+      this.executionCodeService.submitCode(executionCode).subscribe({
+        next: httpResponse => {
+          const responseBody = httpResponse.body;
+          console.log('Code submission response:', responseBody);
+          if (isEqual(responseBody, { message: 'Code executed successfully. Test case passed!' })) {
+            this.showSuccessMessage = true;
+          } else {
+            console.error('Test case did not pass:', httpResponse.body);
+          }
+        },
+        error: error => {
+          console.error('Error submitting code:', error);
+        },
+      });
+    } else {
+      console.error('Game character ID or question number is missing');
+    }
+  }
+
+  continueProgress(): void {
+    const gameCharacterId = this.gameCharacter?.id;
+    const nextQuestionNumber = this.currentProblem?.id! + 1;
+    const newXP = this.gameCharacter?.experience! + this.currentProblem?.xpReward!;
+    const newLevel = this.currentProblem?.level!;
+
+    if (gameCharacterId && nextQuestionNumber && newXP != null && newLevel != null) {
+      const updateRequest: UpdateProgressRequest = {
+        gameCharacterId,
+        nextQuestionNumber,
+        newXP,
+        newLevel,
+      };
+
+      this.progressService.updateProgress(updateRequest).subscribe({
+        next: response => {
+          console.log('Progress updated successfully', response);
+          this.showSuccessMessage = false; // Hide success message and 'Continue' button
+          const currentUrl = this.router.url;
+          this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+            this.router.navigate([currentUrl]); // navigate to the same url
+          });
+        },
+        error: error => {
+          console.error('Failed to update progress', error);
+          // Show error message to the user
+        },
+      });
+    } else {
+      console.error('Required parameters for progress update are missing');
+      // Show error message to the user
+    }
+  }
+
+  updateUserProgress(
+    gameCharacterId: number,
+    newLessonNumber: number,
+    newXP: number,
+    newLevel: number
+  ): Observable<HttpResponse<IProgress>> {
+    const updatedProgress: IProgress = {
+      id: gameCharacterId,
+      currentLesson: newLessonNumber,
+      xp: newXP,
+    };
+
+    return this.progressService.update(updatedProgress);
   }
 }

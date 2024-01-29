@@ -6,6 +6,7 @@ import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
 import { IProgress, NewProgress } from '../progress.model';
+import { UpdateProgressRequest } from 'app/entities/game-character/detail/update-progress-request.model';
 
 export type PartialUpdateProgress = Partial<IProgress> & Pick<IProgress, 'id'>;
 
@@ -32,6 +33,14 @@ export class ProgressService {
 
   find(id: number): Observable<EntityResponseType> {
     return this.http.get<IProgress>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  }
+
+  updateUserProgress(gameCharacterId: number, questionNumber: number): Observable<any> {
+    const updateProgressUrl = `${this.resourceUrl}/${gameCharacterId}`;
+    return this.http.put<IProgress>(updateProgressUrl, { questionNumber }, { observe: 'response' });
+  }
+  updateProgress(updateRequest: UpdateProgressRequest): Observable<HttpResponse<any>> {
+    return this.http.post<any>(`${this.resourceUrl}/update-progress`, updateRequest, { observe: 'response' });
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {

@@ -4,6 +4,7 @@ import com.mycompany.myapp.domain.TestCase;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.relational.core.query.Criteria;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
@@ -18,7 +19,7 @@ public interface TestCaseRepository extends ReactiveCrudRepository<TestCase, Lon
     Flux<TestCase> findAllBy(Pageable pageable);
 
     @Query("SELECT * FROM test_case entity WHERE entity.problem_id = :id")
-    Flux<TestCase> findByProblem(Long id);
+    Mono<TestCase> findByProblem(Integer questionNumber);
 
     @Query("SELECT * FROM test_case entity WHERE entity.problem_id IS NULL")
     Flux<TestCase> findAllWhereProblemIsNull();

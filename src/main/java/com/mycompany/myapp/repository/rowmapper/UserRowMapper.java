@@ -2,7 +2,6 @@ package com.mycompany.myapp.repository.rowmapper;
 
 import com.mycompany.myapp.domain.User;
 import io.r2dbc.spi.Row;
-import java.time.Instant;
 import java.util.function.BiFunction;
 import org.springframework.stereotype.Service;
 

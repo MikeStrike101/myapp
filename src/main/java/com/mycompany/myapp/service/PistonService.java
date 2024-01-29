@@ -1,5 +1,9 @@
 package com.mycompany.myapp.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -10,39 +14,102 @@ public class PistonService {
     private final WebClient webClient;
 
     public PistonService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("https://emkc.org/api/v2/piston").build();
+        this.webClient = webClientBuilder.baseUrl("https://emkc.org").build();
     }
 
-    public Mono<ExecutionResult> executeCode(String language, String version, String code) {
-        // Construct the request payload
-        ExecutionRequest payload = new ExecutionRequest(language, version, code);
+    public Mono<ExecutionResult> executeCode(String language, String version, List<Map<String, String>> files) {
+        Map<String, Object> payload = Map.of("language", language, "version", version, "files", files);
 
-        // Make the POST request to the Piston API
-        return this.webClient.post().uri("/execute").bodyValue(payload).retrieve().bodyToMono(ExecutionResult.class);
+        return this.webClient.post()
+            .uri("/api/v2/piston/execute")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(payload)
+            .retrieve()
+            .bodyToMono(ExecutionResult.class);
     }
 
-    // Inner class to match the expected request format of the Piston API
-    private static class ExecutionRequest {
-
-        private final String language;
-        private final String version;
-        private final String source;
-
-        public ExecutionRequest(String language, String version, String source) {
-            this.language = language;
-            this.version = version;
-            this.source = source;
-        }
-        // Getters (and setters if needed)
-        // ...
-    }
-
-    // Inner class to capture the response from the Piston API
     public static class ExecutionResult {
-        // Define fields according to the Piston API response structure
-        // ...
 
-        // Getters (and setters if needed)
-        // ...
+        private String language;
+        private String version;
+        private Run run;
+
+        public String getLanguage() {
+            return language;
+        }
+
+        public void setLanguage(String language) {
+            this.language = language;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public Run getRun() {
+            return run;
+        }
+
+        public void setRun(Run run) {
+            this.run = run;
+        }
+
+        // Getter to easily access the output
+        public String getOutput() {
+            return this.run != null ? this.run.getOutput() : null;
+        }
+
+        public static class Run {
+
+            private String stdout;
+            private String stderr;
+            private String output;
+            private int code;
+            private String signal;
+
+            public String getStdout() {
+                return stdout;
+            }
+
+            public void setStdout(String stdout) {
+                this.stdout = stdout;
+            }
+
+            public String getStderr() {
+                return stderr;
+            }
+
+            public void setStderr(String stderr) {
+                this.stderr = stderr;
+            }
+
+            public String getOutput() {
+                return output;
+            }
+
+            public void setOutput(String output) {
+                this.output = output;
+            }
+
+            public int getCode() {
+                return code;
+            }
+
+            public void setCode(int code) {
+                this.code = code;
+            }
+
+            public String getSignal() {
+                return signal;
+            }
+
+            public void setSignal(String signal) {
+                this.signal = signal;
+            }
+        }
     }
 }

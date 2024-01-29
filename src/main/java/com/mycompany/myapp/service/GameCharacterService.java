@@ -51,6 +51,8 @@ public class GameCharacterService {
     private final ProblemRepository problemRepository;
     private final CustomProgressRepository customProgressRepository;
 
+    private final ProgressRepository progressRepository;
+
     public GameCharacterService(
         GameCharacterRepository gameCharacterRepository,
         GameCharacterMapper gameCharacterMapper,
@@ -58,7 +60,8 @@ public class GameCharacterService {
         ReplicateService replicateService,
         ProblemRepository problemRepository,
         CustomProgressRepository customProgressRepository,
-        ExecutionCodeRepository executionCodeRepository
+        ExecutionCodeRepository executionCodeRepository,
+        ProgressRepository progressRepository
     ) {
         this.gameCharacterRepository = gameCharacterRepository;
         this.gameCharacterMapper = gameCharacterMapper;
@@ -67,6 +70,7 @@ public class GameCharacterService {
         this.problemRepository = problemRepository;
         this.customProgressRepository = customProgressRepository;
         this.executionCodeRepository = executionCodeRepository;
+        this.progressRepository = progressRepository;
     }
 
     /**
@@ -96,17 +100,20 @@ public class GameCharacterService {
                             String savedImagePath = downloadAndSaveImage(imageUrl, "gameCharacter" + savedGameCharacter.getId());
                             File savedImageFile = new File(savedImagePath);
                             savedGameCharacter.setProfilePicture(savedImageFile.getName());
+                            return progressRepository
+                                .findById(savedGameCharacter.getId())
+                                .switchIfEmpty(
+                                    Mono.defer(() -> {
+                                        Progress progress = new Progress();
+                                        progress.setId(savedGameCharacter.getId());
+                                        progress.setStatus(Status.STARTED);
+                                        progress.setCurrentLesson(1);
+                                        progress.setXp(0);
 
-                            Progress progress = new Progress();
-                            progress.setId(savedGameCharacter.getId());
-                            progress.setStatus(Status.STARTED);
-                            progress.setCurrentLesson(1);
-                            progress.setXp(0);
-
-                            savedGameCharacter.setProgress(progress);
-
-                            return customProgressRepository
-                                .insertWithCustomId(progress)
+                                        savedGameCharacter.setProgress(progress);
+                                        return customProgressRepository.insertWithCustomId(progress);
+                                    })
+                                )
                                 .then(insertDefaultSampleCodes(savedGameCharacter))
                                 .then(gameCharacterRepository.save(savedGameCharacter));
                         } catch (IOException e) {
@@ -214,6 +221,10 @@ public class GameCharacterService {
      */
     public Mono<Long> countAll() {
         return gameCharacterRepository.count();
+    }
+
+    public Mono<GameCharacter> findByGameCharacterId(Long gameCharacterId) {
+        return gameCharacterRepository.findById(gameCharacterId);
     }
 
     /**

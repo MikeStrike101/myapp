@@ -15,6 +15,7 @@ export type EntityArrayResponseType = HttpResponse<IExecutionCode[]>;
 @Injectable({ providedIn: 'root' })
 export class ExecutionCodeService {
   protected resourceUrl = this.applicationConfigService.getEndpointFor('api/execution-codes');
+  protected resourceUrl2 = this.applicationConfigService.getEndpointFor('api/submit-code');
 
   constructor(protected http: HttpClient, protected applicationConfigService: ApplicationConfigService) {}
 
@@ -40,7 +41,9 @@ export class ExecutionCodeService {
       observe: 'response',
     });
   }
-
+  submitCode(executionCodeDTO: NewExecutionCode): Observable<HttpResponse<string>> {
+    return this.http.post<string>(`${this.resourceUrl2}`, executionCodeDTO, { observe: 'response' });
+  }
   findByGameCharacterId(gameCharacterId: number): Observable<EntityArrayResponseType> {
     return this.http.get<IExecutionCode[]>(`${this.resourceUrl}/by-character/${gameCharacterId}`, { observe: 'response' });
   }

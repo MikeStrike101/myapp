@@ -33,6 +33,8 @@ public interface ExecutionCodeRepository extends ReactiveCrudRepository<Executio
 
     @Query("SELECT * FROM execution_code ec WHERE game_character = :gameCharacterId")
     Flux<ExecutionCode> findByGameCharacterId(@Param("gameCharacterId") Long gameCharacterId);
+
+    Mono<ExecutionCode> findByGameCharacterAndQuestionNumber(Long gameCharacterId, Integer questionNumber);
 }
 
 interface ExecutionCodeRepositoryInternal {

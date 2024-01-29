@@ -1,32 +1,33 @@
 package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.repository.ProblemRepository;
+import com.mycompany.myapp.service.ExecutionCodeService;
+import com.mycompany.myapp.service.GameCharacterService;
+import com.mycompany.myapp.service.PistonService;
 import com.mycompany.myapp.service.ProblemService;
+import com.mycompany.myapp.service.ProgressService;
+import com.mycompany.myapp.service.TestCaseService;
+import com.mycompany.myapp.service.dto.ExecutionCodeDTO;
 import com.mycompany.myapp.service.dto.ProblemDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
@@ -50,9 +51,32 @@ public class ProblemResource {
 
     private final ProblemRepository problemRepository;
 
-    public ProblemResource(ProblemService problemService, ProblemRepository problemRepository) {
+    private final PistonService pistonService;
+
+    private final TestCaseService testCaseService;
+
+    private final ProgressService progressService;
+
+    private final ExecutionCodeService executionCodeService;
+
+    private final GameCharacterService gameCharacterService;
+
+    public ProblemResource(
+        ProblemService problemService,
+        ProblemRepository problemRepository,
+        PistonService pistonService,
+        TestCaseService testCaseService,
+        ProgressService progressService,
+        ExecutionCodeService executionCodeService,
+        GameCharacterService gameCharacterService
+    ) {
         this.problemService = problemService;
         this.problemRepository = problemRepository;
+        this.pistonService = pistonService;
+        this.testCaseService = testCaseService;
+        this.progressService = progressService;
+        this.executionCodeService = executionCodeService;
+        this.gameCharacterService = gameCharacterService;
     }
 
     /**
@@ -229,5 +253,46 @@ public class ProblemResource {
                         .build()
                 )
             );
+    }
+
+    @PostMapping("/submit-code")
+    public Mono<ResponseEntity<Map<String, String>>> submitAndExecuteCode(@RequestBody ExecutionCodeDTO executionCodeDTO) {
+        String language = "python";
+        String version = "3.10";
+
+        Map<String, String> file = Map.of("content", executionCodeDTO.getCode());
+        List<Map<String, String>> files = List.of(file);
+        log.debug("Received request to submit and execute code: {}", executionCodeDTO);
+
+        return pistonService
+            .executeCode(language, version, files)
+            .flatMap(executionResult -> {
+                return testCaseService
+                    .getExpectedOutputByQuestionId(executionCodeDTO.getQuestionNumber())
+                    .flatMap(expectedOutput -> {
+                        String actualOutputCleaned = executionResult.getOutput().replace("_", "").trim();
+                        String expectedOutputCleaned = expectedOutput.replace("_", "").trim();
+
+                        if (actualOutputCleaned.equals(expectedOutputCleaned)) {
+                            return Mono.just(ResponseEntity.ok().body(Map.of("message", "Code executed successfully. Test case passed!")));
+                        } else {
+                            log.warn("Test case did not pass for question number: {}", executionCodeDTO.getQuestionNumber());
+                            log.debug("Mismatch found:");
+                            log.debug("Actual Output (Cleaned): {}", actualOutputCleaned);
+                            log.debug("Expected Output (Cleaned): {}", expectedOutputCleaned);
+                            return Mono.just(
+                                ResponseEntity.badRequest().body(Map.of("error", "Code execution failed. Test case did not pass."))
+                            );
+                        }
+                    });
+            })
+            .onErrorResume(e -> {
+                log.error("Error during code execution", e);
+                return Mono.just(
+                    ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("error", "Error during code execution: " + e.getMessage()))
+                );
+            });
     }
 }
