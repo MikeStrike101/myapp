@@ -1,6 +1,8 @@
 package com.mycompany.myapp.web.rest;
 
+import com.mycompany.myapp.repository.GameCharacterRepository;
 import com.mycompany.myapp.repository.ProgressRepository;
+import com.mycompany.myapp.service.GameCharacterService;
 import com.mycompany.myapp.service.ProgressService;
 import com.mycompany.myapp.service.dto.ProgressDTO;
 import com.mycompany.myapp.service.dto.UpdateProgressRequestDTO;
@@ -44,9 +46,20 @@ public class ProgressResource {
 
     private final ProgressRepository progressRepository;
 
-    public ProgressResource(ProgressService progressService, ProgressRepository progressRepository) {
+    private final GameCharacterService gameCharacterService;
+
+    private final GameCharacterRepository gameCharacterRepository;
+
+    public ProgressResource(
+        ProgressService progressService,
+        ProgressRepository progressRepository,
+        GameCharacterService gameCharacterService,
+        GameCharacterRepository gameCharacterRepository
+    ) {
         this.progressService = progressService;
         this.progressRepository = progressRepository;
+        this.gameCharacterService = gameCharacterService;
+        this.gameCharacterRepository = gameCharacterRepository;
     }
 
     /**
@@ -223,16 +236,28 @@ public class ProgressResource {
     }
 
     @PostMapping("/progresses/update-progress")
-    public Mono<ResponseEntity<Map<String, Object>>> updateProgress(@Valid @RequestBody UpdateProgressRequestDTO updateRequest) {
-        return progressService
-            .updateUserProgress(updateRequest)
-            .then(Mono.just(ResponseEntity.ok().body(Collections.<String, Object>singletonMap("message", "Update successful"))))
-            .onErrorResume(e ->
-                Mono.just(
-                    ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(Collections.<String, Object>singletonMap("error", e.getMessage()))
-                )
-            );
+    public Mono<Void> updateUserProgress(@Valid @RequestBody UpdateProgressRequestDTO updateRequest) {
+        return progressRepository
+            .findById(updateRequest.getGameCharacterId())
+            .flatMap(existingProgress -> {
+                log.debug("Existing progress before {}", existingProgress);
+                existingProgress.setCurrentLesson(updateRequest.getNextQuestionNumber());
+                existingProgress.setXp(existingProgress.getXp() + updateRequest.getNewXP());
+
+                return progressRepository
+                    .save(existingProgress)
+                    .then(gameCharacterRepository.findById(updateRequest.getGameCharacterId()))
+                    .flatMap(existingCharacter -> {
+                        log.debug("Existing game character before {}", existingCharacter);
+                        existingCharacter.setLevel(updateRequest.getNewLevel());
+                        existingCharacter.setExperience(existingCharacter.getExperience() + updateRequest.getNewXP());
+                        existingCharacter.setProgress(existingProgress);
+
+                        log.debug("Existing game character after {}", existingCharacter);
+                        log.debug("Existing progress after {}", existingProgress);
+                        return gameCharacterRepository.save(existingCharacter);
+                    });
+            })
+            .then();
     }
 }

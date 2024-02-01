@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 public class ReplicateService {
 
     private final WebClient webClient;
-    private final String replicateApiToken = "r8_BJzR9XQXfoLnckqRrILMpbmAy1FG3ma3tF9jW";
+    private final String replicateApiToken = "r8_X8d6XiPdgD5KOo3KCiyDGdeWwTVPKsv4CGgan";
 
     public ReplicateService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl("https://api.replicate.com").build();

@@ -15,6 +15,7 @@ export type EntityArrayResponseType = HttpResponse<IGameCharacter[]>;
 @Injectable({ providedIn: 'root' })
 export class GameCharacterService {
   protected resourceUrl = this.applicationConfigService.getEndpointFor('api/game-characters');
+  protected resourceUrl2 = this.applicationConfigService.getEndpointFor('api/generate-new-image');
 
   constructor(protected http: HttpClient, protected applicationConfigService: ApplicationConfigService) {}
 
@@ -32,6 +33,10 @@ export class GameCharacterService {
     return this.http.patch<IGameCharacter>(`${this.resourceUrl}/${this.getGameCharacterIdentifier(gameCharacter)}`, gameCharacter, {
       observe: 'response',
     });
+  }
+
+  generateNewImage(gameCharacter: IGameCharacter): Observable<HttpResponse<any>> {
+    return this.http.post<any>(`${this.resourceUrl2}`, gameCharacter, { observe: 'response' });
   }
 
   find(id: number): Observable<EntityResponseType> {

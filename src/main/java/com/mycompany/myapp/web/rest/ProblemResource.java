@@ -270,8 +270,9 @@ public class ProblemResource {
                 return testCaseService
                     .getExpectedOutputByQuestionId(executionCodeDTO.getQuestionNumber())
                     .flatMap(expectedOutput -> {
-                        String actualOutputCleaned = executionResult.getOutput().replace("_", "").trim();
-                        String expectedOutputCleaned = expectedOutput.replace("_", "").trim();
+                        String actualOutputCleaned = executionResult.getOutput().replace("_", "").replaceAll("\\s+", "").trim();
+
+                        String expectedOutputCleaned = expectedOutput.replace("_", "").replaceAll("\\s+", "").trim();
 
                         if (actualOutputCleaned.equals(expectedOutputCleaned)) {
                             return Mono.just(ResponseEntity.ok().body(Map.of("message", "Code executed successfully. Test case passed!")));

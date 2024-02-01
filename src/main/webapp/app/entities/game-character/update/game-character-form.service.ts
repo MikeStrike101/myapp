@@ -157,7 +157,7 @@ export class GameCharacterFormService {
   private getFormDefaults(): GameCharacterFormDefaults {
     return {
       id: null,
-      level: 0,
+      level: 1,
       experience: 0,
       progress: null,
       uniqueLink: '',

@@ -12,7 +12,9 @@ import com.mycompany.myapp.repository.ProgressRepository;
 import com.mycompany.myapp.service.EmailService;
 import com.mycompany.myapp.service.dto.ExecutionCodeDTO;
 import com.mycompany.myapp.service.dto.GameCharacterDTO;
+import com.mycompany.myapp.service.dto.ProgressDTO;
 import com.mycompany.myapp.service.mapper.GameCharacterMapper;
+import com.mycompany.myapp.service.mapper.ProgressMapper;
 import com.mycompany.myapp.util.SampleCodeUtil;
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +26,10 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -46,12 +50,16 @@ public class GameCharacterService {
 
     private final ReplicateService replicateService;
 
+    private final ProblemService problemService;
+
     private final ExecutionCodeRepository executionCodeRepository;
 
     private final ProblemRepository problemRepository;
     private final CustomProgressRepository customProgressRepository;
 
     private final ProgressRepository progressRepository;
+
+    private final ProgressMapper progressMapper;
 
     public GameCharacterService(
         GameCharacterRepository gameCharacterRepository,
@@ -61,7 +69,9 @@ public class GameCharacterService {
         ProblemRepository problemRepository,
         CustomProgressRepository customProgressRepository,
         ExecutionCodeRepository executionCodeRepository,
-        ProgressRepository progressRepository
+        ProgressRepository progressRepository,
+        ProgressMapper progressMapper,
+        ProblemService problemService
     ) {
         this.gameCharacterRepository = gameCharacterRepository;
         this.gameCharacterMapper = gameCharacterMapper;
@@ -71,6 +81,8 @@ public class GameCharacterService {
         this.customProgressRepository = customProgressRepository;
         this.executionCodeRepository = executionCodeRepository;
         this.progressRepository = progressRepository;
+        this.progressMapper = progressMapper;
+        this.problemService = problemService;
     }
 
     /**
@@ -79,56 +91,67 @@ public class GameCharacterService {
      * @param gameCharacterDTO the entity to save.
      * @return the persisted entity.
      */
-
     public Mono<GameCharacterDTO> save(GameCharacterDTO gameCharacterDTO) {
         return gameCharacterRepository
             .save(gameCharacterMapper.toEntity(gameCharacterDTO))
             .flatMap(savedGameCharacter -> {
-                // Construct the prompt for the Replicate API
-                String prompt =
-                    "A newbie pixelated character for the EvoCode platform which has the shape of a " +
-                    savedGameCharacter.getShape() +
-                    " " +
-                    savedGameCharacter.getColor() +
-                    " with " +
-                    savedGameCharacter.getAccessory();
-                // Call the ReplicateService to generate the image
-                return replicateService
-                    .generateImage(prompt)
-                    .flatMap(imageUrl -> {
-                        try {
-                            String savedImagePath = downloadAndSaveImage(imageUrl, "gameCharacter" + savedGameCharacter.getId());
-                            File savedImageFile = new File(savedImagePath);
-                            savedGameCharacter.setProfilePicture(savedImageFile.getName());
-                            return progressRepository
-                                .findById(savedGameCharacter.getId())
-                                .switchIfEmpty(
-                                    Mono.defer(() -> {
-                                        Progress progress = new Progress();
-                                        progress.setId(savedGameCharacter.getId());
-                                        progress.setStatus(Status.STARTED);
-                                        progress.setCurrentLesson(1);
-                                        progress.setXp(0);
+                if (savedGameCharacter.getLevel() == 1) {
+                    String prompt =
+                        "A newbie pixelated character for the EvoCode platform which has the shape of a " +
+                        savedGameCharacter.getShape() +
+                        " " +
+                        savedGameCharacter.getColor() +
+                        " with " +
+                        savedGameCharacter.getAccessory();
+                    return replicateService
+                        .generateImage(prompt)
+                        .flatMap(imageUrl -> {
+                            try {
+                                String savedImagePath = downloadAndSaveImage(imageUrl, "gameCharacter" + savedGameCharacter.getId());
+                                File savedImageFile = new File(savedImagePath);
+                                savedGameCharacter.setProfilePicture(savedImageFile.getName());
 
-                                        savedGameCharacter.setProgress(progress);
-                                        return customProgressRepository.insertWithCustomId(progress);
-                                    })
-                                )
-                                .then(insertDefaultSampleCodes(savedGameCharacter))
-                                .then(gameCharacterRepository.save(savedGameCharacter));
-                        } catch (IOException e) {
-                            log.error("Error saving image", e);
-                            return Mono.error(e);
-                        }
-                    });
-            })
-            .map(gameCharacterMapper::toDto)/* .doOnSuccess(character -> {
-                // Send email with unique link after everything is saved
-                String userEmail = character.getEmail();
-                if (userEmail != null && !userEmail.isEmpty()) {
-                    emailService.sendUniqueLinkEmail(userEmail, "Your Game Character Link is here: ", character.getUniqueLink());
+                                Progress progress = new Progress();
+                                progress.setId(savedGameCharacter.getId());
+                                progress.setStatus(Status.STARTED);
+                                progress.setCurrentLesson(1);
+                                progress.setXp(0);
+
+                                savedGameCharacter.setProgress(progress);
+
+                                return customProgressRepository
+                                    .insertWithCustomId(progress)
+                                    .then(insertDefaultSampleCodes(savedGameCharacter))
+                                    .then(gameCharacterRepository.save(savedGameCharacter));
+                            } catch (IOException e) {
+                                log.error("Error saving image", e);
+                                return Mono.error(e);
+                            }
+                        });
+                } else {
+                    return gameCharacterRepository.save(savedGameCharacter);
                 }
-            })*/;
+            })
+            .map(gameCharacterMapper::toDto);
+    }
+
+    private Mono<GameCharacter> updateProgress(GameCharacter gameCharacter, ProgressDTO progressDTO) {
+        return progressRepository
+            .findById(gameCharacter.getId())
+            .defaultIfEmpty(new Progress())
+            .flatMap(currentProgress -> {
+                currentProgress.setStatus(progressDTO.getStatus());
+                currentProgress.setCurrentLesson(progressDTO.getCurrentLesson());
+                currentProgress.setXp(progressDTO.getXp());
+
+                // Save the updated progress
+                return progressRepository.updateProgressCustom(
+                    currentProgress.getId(),
+                    currentProgress.getCurrentLesson(),
+                    currentProgress.getXp()
+                );
+            })
+            .thenReturn(gameCharacter);
     }
 
     private Mono<Void> insertDefaultSampleCodes(GameCharacter savedGameCharacter) {
@@ -160,6 +183,37 @@ public class GameCharacterService {
         });
 
         return defaultCodes;
+    }
+
+    public Mono<String> generateAndSaveImage(GameCharacterDTO gameCharacterDTO) {
+        String basePrompt = "A newbie pixelated character for the EvoCode platform";
+
+        String newPrompt = createDynamicPrompt(basePrompt, gameCharacterDTO);
+
+        return replicateService
+            .generateImage(newPrompt)
+            .flatMap(imageUrl -> {
+                try {
+                    String savedImagePath = downloadAndSaveImage(imageUrl, "gameCharacter" + gameCharacterDTO.getId());
+                    gameCharacterDTO.setProfilePicture("gameCharacter" + gameCharacterDTO.getId() + ".png");
+
+                    return Mono.just(savedImagePath);
+                } catch (IOException e) {
+                    log.error("Error saving image", e);
+                    return Mono.error(e);
+                }
+            });
+    }
+
+    private String createDynamicPrompt(String basePrompt, GameCharacterDTO gameCharacterDTO) {
+        return String.format(
+            "%s which has the shape of a %s %s with %s at level %d facing new adventures.",
+            basePrompt,
+            gameCharacterDTO.getShape(),
+            gameCharacterDTO.getColor(),
+            gameCharacterDTO.getAccessory(),
+            gameCharacterDTO.getLevel()
+        );
     }
 
     /**

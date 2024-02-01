@@ -16,6 +16,7 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { IProgress } from 'app/entities/progress/progress.model';
 import { Observable } from 'rxjs';
 import { UpdateProgressRequest } from './update-progress-request.model';
+import { GameCharacterService } from '../service/game-character.service';
 
 interface LanguageModeMapping {
   [language: string]: string | undefined;
@@ -38,6 +39,7 @@ export class GameCharacterDetailComponent implements OnInit {
   currentProblem: IProblem | null = null;
   currentExecutionCode: IExecutionCode | null = null;
   showSuccessMessage = false;
+  isLoading = false;
 
   constructor(
     protected activatedRoute: ActivatedRoute,
@@ -46,7 +48,8 @@ export class GameCharacterDetailComponent implements OnInit {
     protected progressService: ProgressService,
     protected problemService: ProblemService,
     private cdr: ChangeDetectorRef,
-    protected executionCodeService: ExecutionCodeService
+    protected executionCodeService: ExecutionCodeService,
+    protected gameCharacterService: GameCharacterService
   ) {}
 
   setEditorMode(programmingLanguage: string | null): void {
@@ -88,7 +91,6 @@ export class GameCharacterDetailComponent implements OnInit {
     if (this.showQuestion && !this.editor && document.getElementById('editor')) {
       this.editor = ace.edit('editor');
       this.editor.getSession().on('change', () => {
-        // Use optional chaining to prevent the error
         this.editorCode = this.editor?.getValue() ?? '';
       });
 
@@ -174,7 +176,6 @@ export class GameCharacterDetailComponent implements OnInit {
 
   saveCode(): void {
     if (this.currentExecutionCode && this.editorCode) {
-      // Update the code property of the currentExecutionCode object
       const updatedExecutionCode: IExecutionCode = {
         ...this.currentExecutionCode,
         code: this.editorCode,
@@ -228,51 +229,79 @@ export class GameCharacterDetailComponent implements OnInit {
   }
 
   continueProgress(): void {
+    this.isLoading = true;
     const gameCharacterId = this.gameCharacter?.id;
     const nextQuestionNumber = this.currentProblem?.id! + 1;
     const newXP = this.gameCharacter?.experience! + this.currentProblem?.xpReward!;
     const newLevel = this.currentProblem?.level!;
 
     if (gameCharacterId && nextQuestionNumber && newXP != null && newLevel != null) {
-      const updateRequest: UpdateProgressRequest = {
-        gameCharacterId,
-        nextQuestionNumber,
-        newXP,
-        newLevel,
-      };
+      if (
+        this.gameCharacter?.level !== newLevel &&
+        this.gameCharacter?.shape &&
+        this.gameCharacter?.color &&
+        this.gameCharacter?.accessory &&
+        this.gameCharacter?.name
+      ) {
+        // Generate the image first if the level has changed
+        this.gameCharacterService.generateNewImage(this.gameCharacter).subscribe({
+          next: imageResponse => {
+            console.log('Image generated successfully', imageResponse);
+            if (this.gameCharacter) {
+              this.gameCharacter.profilePicture = imageResponse.body.filename;
+            }
 
-      this.progressService.updateProgress(updateRequest).subscribe({
-        next: response => {
-          console.log('Progress updated successfully', response);
-          this.showSuccessMessage = false; // Hide success message and 'Continue' button
-          const currentUrl = this.router.url;
-          this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-            this.router.navigate([currentUrl]); // navigate to the same url
-          });
-        },
-        error: error => {
-          console.error('Failed to update progress', error);
-          // Show error message to the user
-        },
-      });
+            // Image generation successful, now proceed to update progress
+            this.updateUserProgress(gameCharacterId, nextQuestionNumber, newXP, newLevel, true);
+          },
+          error: imageError => {
+            console.error('Failed to generate new image', imageError);
+            this.finishLoading();
+          },
+        });
+      } else {
+        // If the level hasn't changed, just update the progress
+        this.updateUserProgress(gameCharacterId, nextQuestionNumber, newXP, newLevel, false);
+      }
     } else {
       console.error('Required parameters for progress update are missing');
-      // Show error message to the user
+      this.isLoading = false;
     }
   }
 
-  updateUserProgress(
-    gameCharacterId: number,
-    newLessonNumber: number,
-    newXP: number,
-    newLevel: number
-  ): Observable<HttpResponse<IProgress>> {
-    const updatedProgress: IProgress = {
-      id: gameCharacterId,
-      currentLesson: newLessonNumber,
-      xp: newXP,
+  // Add a new parameter `shouldRefresh` to determine if a hard refresh should be performed
+  updateUserProgress(gameCharacterId: number, nextQuestionNumber: number, newXP: number, newLevel: number, shouldRefresh: boolean): void {
+    const updateRequest: UpdateProgressRequest = {
+      gameCharacterId,
+      nextQuestionNumber,
+      newXP,
+      newLevel,
     };
 
-    return this.progressService.update(updatedProgress);
+    this.progressService.updateProgress(updateRequest).subscribe({
+      next: response => {
+        console.log('Progress updated successfully', response);
+        this.showSuccessMessage = false;
+
+        // Perform a hard refresh if needed
+        if (shouldRefresh) {
+          window.location.reload();
+        } else {
+          this.finishLoading();
+        }
+      },
+      error: error => {
+        console.error('Failed to update progress', error);
+        this.finishLoading();
+      },
+    });
+  }
+
+  private finishLoading(): void {
+    this.isLoading = false;
+    const currentUrl = this.router.url;
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate([currentUrl]);
+    });
   }
 }

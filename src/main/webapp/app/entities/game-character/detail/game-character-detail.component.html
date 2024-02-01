@@ -19,5 +19,12 @@
         <button class="btn btn-success mt-2" (click)="continueProgress()">Continue</button>
       </div>
     </div>
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="loading-indicator">
+      <div class="alert alert-info mt-3 text-center">
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Updating progress, please wait...
+      </div>
+    </div>
   </div>
 </div>
