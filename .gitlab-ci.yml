@@ -89,7 +89,7 @@ upload-to-vm:
     - chmod 700 ~/.ssh
     - ssh-keyscan -H 130.162.166.54 >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - scp -i /tmp/id_rsa.key build-artifacts.tar.gz ubuntu@130.162.166.54:/path/to/your/directory
+    - scp -i /tmp/id_rsa.key build-artifacts.tar.gz ubuntu@130.162.166.54
   only:
     - main
   dependencies:
