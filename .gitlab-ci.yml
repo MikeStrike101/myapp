@@ -56,7 +56,7 @@ gradle-integration-test:
 
   stage: test
   script:
-    - ./gradlew integrationTest -PnodeInstall --no-daemon
+    - ./gradlew integrationTest -PnodeInstall --no-daemon --stacktrace --info
   artifacts:
     reports:
       junit: build/test-results/integrationTest/TEST-*.xml
