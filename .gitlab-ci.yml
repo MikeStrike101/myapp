@@ -98,7 +98,7 @@ upload-to-vm:
 deploy:
   stage: deploy
   script:
-    # Add deployment script here
+    - echo "Deployment script will be added here later."
   only:
     - main
 
