@@ -75,7 +75,11 @@ gradle-package:
   stage: package
   script:
     - ./gradlew bootJar -Pprod -PnodeInstall -x check --no-daemon
-    - tar -czf build-artifacts.tar.gz build/libs/*.jar build/classes
+    - zip -r build-artifacts.zip build/libs/*.jar build/classes
+  artifacts:
+    paths:
+      - build-artifacts.zip
+    expire_in: 1 day
 
 upload-to-vm:
   stage: upload
@@ -98,7 +102,16 @@ upload-to-vm:
 deploy:
   stage: deploy
   script:
-    - echo "Deployment script will be added here later."
+    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+    - echo $SSH_PRIVATE_KEY | base64 --decode > /tmp/id_rsa.key
+    - chmod 600 /tmp/id_rsa.key
+    - eval $(ssh-agent -s)
+    - ssh-add /tmp/id_rsa.key
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H 130.162.166.54 >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - scp -i /tmp/id_rsa.key build-artifacts.zip ubuntu@130.162.166.54:~/destination_directory/
   only:
     - main
 
