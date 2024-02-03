@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { IGameCharacter, NewGameCharacter } from '../game-character.model';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 import { adjectives } from './adjectives';
 import { nouns } from './nouns';
 /**
@@ -44,12 +44,6 @@ export class GameCharacterFormService {
   constructor(private http: HttpClient) {
     this.loadWords(); // Load words as soon as the service is created
   }
-
-  private loadWords(): void {
-    this.adjectives = adjectives;
-    this.nouns = nouns;
-  }
-
   public generateUniqueLink(): Observable<string> {
     const adjective = this.adjectives[Math.floor(Math.random() * this.adjectives.length)];
     const noun = this.nouns[Math.floor(Math.random() * this.nouns.length)];
@@ -143,6 +137,11 @@ export class GameCharacterFormService {
         uniqueLink: { value: this.generateUniqueLink(), disabled: true },
       } as any /* cast to workaround https://github.com/angular/angular/issues/46458 */
     );
+  }
+
+  private loadWords(): void {
+    this.adjectives = adjectives;
+    this.nouns = nouns;
   }
 
   private generateRandomString(length: number): string {

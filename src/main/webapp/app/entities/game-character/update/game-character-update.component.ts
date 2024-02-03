@@ -30,7 +30,7 @@ export class GameCharacterUpdateComponent implements OnInit {
   private adjectives: string[] = [];
   private nouns: string[] = [];
 
-  programmingLanguages: string[] = ['JavaScript', 'Python', 'Java', 'C#', 'C++', 'PHP', 'TypeScript', 'Ruby', 'Swift', 'Other'];
+  programmingLanguages: string[] = ['JavaScript', 'Python', 'Java'];
 
   shapes: string[] = ['Circle', 'Square', 'Triangle', 'Hexagon'];
   colors: string[] = ['Red', 'Blue', 'Green', 'Yellow'];
@@ -129,14 +129,13 @@ export class GameCharacterUpdateComponent implements OnInit {
           const newGameCharacter: NewGameCharacter = {
             ...gameCharacter,
             id: null,
-            uniqueLink: uniqueLink, // Set the unique link here
+            uniqueLink: uniqueLink,
           };
           this.subscribeToSaveResponse(this.gameCharacterService.create(newGameCharacter));
         },
         error => {
           console.error('Error generating unique link:', error);
           this.isSaving = false;
-          // Handle the error appropriately
         }
       );
     } else {
@@ -156,8 +155,6 @@ export class GameCharacterUpdateComponent implements OnInit {
     if (uniqueLink) {
       this.uniqueLink = uniqueLink;
       this.showLetsGoMessage = true;
-      // Optionally, you can remove or hide the save button here
-      // ...
     } else {
       console.error('Unique link is not available in the response');
     }

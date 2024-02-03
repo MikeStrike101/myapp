@@ -38,12 +38,6 @@ public class TestCase implements Serializable {
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
-    private String expectedOutput;
-
-    public String getExpectedOutput() {
-        return this.expectedOutput;
-    }
-
     public Long getId() {
         return this.id;
     }

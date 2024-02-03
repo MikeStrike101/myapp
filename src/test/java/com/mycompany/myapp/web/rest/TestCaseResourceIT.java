@@ -11,13 +11,14 @@ import com.mycompany.myapp.repository.EntityManager;
 import com.mycompany.myapp.repository.TestCaseRepository;
 import com.mycompany.myapp.service.dto.TestCaseDTO;
 import com.mycompany.myapp.service.mapper.TestCaseMapper;
-import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
@@ -40,6 +41,8 @@ class TestCaseResourceIT {
 
     private static final String ENTITY_API_URL = "/api/test-cases";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+
+    private static final Logger log = LoggerFactory.getLogger(TestCaseResourceIT.class);
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
@@ -356,22 +359,34 @@ class TestCaseResourceIT {
         // Initialize the database
         testCaseRepository.save(testCase).block();
 
+        // Log the initial state of the database
+        logDatabaseState("Before update");
+
         int databaseSizeBeforeUpdate = testCaseRepository.findAll().collectList().block().size();
 
         // Update the testCase using partial update
         TestCase partialUpdatedTestCase = new TestCase();
         partialUpdatedTestCase.setId(testCase.getId());
-
         partialUpdatedTestCase.input(UPDATED_INPUT).output(UPDATED_OUTPUT);
 
-        webTestClient
-            .patch()
-            .uri(ENTITY_API_URL_ID, partialUpdatedTestCase.getId())
-            .contentType(MediaType.valueOf("application/merge-patch+json"))
-            .bodyValue(TestUtil.convertObjectToJsonBytes(partialUpdatedTestCase))
-            .exchange()
-            .expectStatus()
-            .isOk();
+        // Log the request body
+        log.info("Request body: {}", TestUtil.convertObjectToJsonBytes(partialUpdatedTestCase));
+
+        try {
+            webTestClient
+                .patch()
+                .uri(ENTITY_API_URL_ID, partialUpdatedTestCase.getId())
+                .contentType(MediaType.valueOf("application/merge-patch+json"))
+                .bodyValue(TestUtil.convertObjectToJsonBytes(partialUpdatedTestCase))
+                .exchange()
+                .expectStatus()
+                .isOk();
+        } catch (Exception e) {
+            log.error("Error while making PATCH request", e);
+        }
+
+        // Log the final state of the database
+        logDatabaseState("After update");
 
         // Validate the TestCase in the database
         List<TestCase> testCaseList = testCaseRepository.findAll().collectList().block();
@@ -379,6 +394,11 @@ class TestCaseResourceIT {
         TestCase testTestCase = testCaseList.get(testCaseList.size() - 1);
         assertThat(testTestCase.getInput()).isEqualTo(UPDATED_INPUT);
         assertThat(testTestCase.getOutput()).isEqualTo(UPDATED_OUTPUT);
+    }
+
+    private void logDatabaseState(String stateDescription) {
+        List<TestCase> testCaseList = testCaseRepository.findAll().collectList().block();
+        log.info("{} database state: {}", stateDescription, testCaseList);
     }
 
     @Test

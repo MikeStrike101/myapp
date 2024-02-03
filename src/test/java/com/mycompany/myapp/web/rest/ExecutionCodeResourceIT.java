@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -227,7 +228,15 @@ class ExecutionCodeResourceIT {
             .jsonPath("$.[*].code")
             .value(hasItem(DEFAULT_CODE.toString()))
             .jsonPath("$.[*].gameCharacter")
-            .value(hasItem(DEFAULT_GAME_CHARACTER));
+            .value(hasItem(isCompatibleWithType(DEFAULT_GAME_CHARACTER))); // Use a custom matcher
+    }
+
+    // Custom matcher to handle the type discrepancy
+    private Matcher<?> isCompatibleWithType(Object expected) {
+        if (expected instanceof Long) {
+            return is(((Long) expected).intValue()); // Convert to Integer if the actual value is expected to be an Integer
+        }
+        return is(expected);
     }
 
     @Test
@@ -253,7 +262,7 @@ class ExecutionCodeResourceIT {
             .jsonPath("$.code")
             .value(is(DEFAULT_CODE.toString()))
             .jsonPath("$.gameCharacter")
-            .value(is(DEFAULT_GAME_CHARACTER));
+            .value(is((int) DEFAULT_GAME_CHARACTER));
     }
 
     @Test

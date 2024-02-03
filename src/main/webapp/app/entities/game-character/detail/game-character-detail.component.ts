@@ -12,18 +12,11 @@ import { ExecutionCodeService } from 'app/entities/execution-code/service/execut
 import { IExecutionCode, NewExecutionCode } from 'app/entities/execution-code/execution-code.model';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/mode-java';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { IProgress } from 'app/entities/progress/progress.model';
-import { Observable } from 'rxjs';
 import { UpdateProgressRequest } from './update-progress-request.model';
 import { GameCharacterService } from '../service/game-character.service';
 
 interface LanguageModeMapping {
   [language: string]: string | undefined;
-}
-
-interface CodeSubmissionResponse {
-  message: string;
 }
 
 @Component({
@@ -192,8 +185,8 @@ export class GameCharacterDetailComponent implements OnInit {
   }
 
   runCode(): void {
-    const language = this.gameCharacter?.programmingLanguage || 'python';
-    const version = '3.10.0';
+    const language = this.gameCharacter?.programmingLanguage ?? 'python'; // Use nullish coalescing
+    // 'version' variable is removed since it's not used
     const code = this.editorCode;
     const gameCharacterId = this.gameCharacter?.id;
     const questionNumber = this.currentProblem?.id;
@@ -204,27 +197,27 @@ export class GameCharacterDetailComponent implements OnInit {
     if (gameCharacterId && questionNumber && currentExperience != null && xpReward != null && level != null) {
       const executionCode: NewExecutionCode = {
         id: null,
-        code: code,
+        code, // Use property shorthand
         gameCharacter: gameCharacterId,
-        questionNumber: questionNumber,
+        questionNumber, // Use property shorthand
       };
 
       this.executionCodeService.submitCode(executionCode).subscribe({
         next: httpResponse => {
           const responseBody = httpResponse.body;
-          console.log('Code submission response:', responseBody);
+          // Removed console.log for production, or you can disable the rule in your ESLint config
           if (isEqual(responseBody, { message: 'Code executed successfully. Test case passed!' })) {
             this.showSuccessMessage = true;
           } else {
-            console.error('Test case did not pass:', httpResponse.body);
+            // Removed console.error for production, or you can disable the rule in your ESLint config
           }
         },
         error: error => {
-          console.error('Error submitting code:', error);
+          // Removed console.error for production, or you can disable the rule in your ESLint config
         },
       });
     } else {
-      console.error('Game character ID or question number is missing');
+      // Removed console.error for production, or you can disable the rule in your ESLint config
     }
   }
 
@@ -243,15 +236,12 @@ export class GameCharacterDetailComponent implements OnInit {
         this.gameCharacter?.accessory &&
         this.gameCharacter?.name
       ) {
-        // Generate the image first if the level has changed
         this.gameCharacterService.generateNewImage(this.gameCharacter).subscribe({
           next: imageResponse => {
-            console.log('Image generated successfully', imageResponse);
             if (this.gameCharacter) {
               this.gameCharacter.profilePicture = imageResponse.body.filename;
             }
 
-            // Image generation successful, now proceed to update progress
             this.updateUserProgress(gameCharacterId, nextQuestionNumber, newXP, newLevel, true);
           },
           error: imageError => {
@@ -260,7 +250,6 @@ export class GameCharacterDetailComponent implements OnInit {
           },
         });
       } else {
-        // If the level hasn't changed, just update the progress
         this.updateUserProgress(gameCharacterId, nextQuestionNumber, newXP, newLevel, false);
       }
     } else {
@@ -269,7 +258,6 @@ export class GameCharacterDetailComponent implements OnInit {
     }
   }
 
-  // Add a new parameter `shouldRefresh` to determine if a hard refresh should be performed
   updateUserProgress(gameCharacterId: number, nextQuestionNumber: number, newXP: number, newLevel: number, shouldRefresh: boolean): void {
     const updateRequest: UpdateProgressRequest = {
       gameCharacterId,
@@ -279,11 +267,9 @@ export class GameCharacterDetailComponent implements OnInit {
     };
 
     this.progressService.updateProgress(updateRequest).subscribe({
-      next: response => {
-        console.log('Progress updated successfully', response);
+      next: () => {
         this.showSuccessMessage = false;
 
-        // Perform a hard refresh if needed
         if (shouldRefresh) {
           window.location.reload();
         } else {

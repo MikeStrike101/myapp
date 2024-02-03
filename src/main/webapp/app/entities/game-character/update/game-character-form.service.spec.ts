@@ -3,12 +3,15 @@ import { TestBed } from '@angular/core/testing';
 import { sampleWithRequiredData, sampleWithNewData } from '../game-character.test-samples';
 
 import { GameCharacterFormService } from './game-character-form.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('GameCharacter Form Service', () => {
   let service: GameCharacterFormService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+    });
     service = TestBed.inject(GameCharacterFormService);
   });
 
