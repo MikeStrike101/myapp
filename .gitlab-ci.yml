@@ -81,6 +81,7 @@ gradle-package:
 upload-to-vm:
   stage: upload
   script:
+    - ls -lah
     - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
     - echo $SSH_PRIVATE_KEY | base64 --decode > /tmp/id_rsa.key
     - chmod 600 /tmp/id_rsa.key
