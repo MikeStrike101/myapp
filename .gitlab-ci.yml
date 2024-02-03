@@ -84,24 +84,6 @@ gradle-package:
 upload-to-vm:
   stage: upload
   script:
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-    - echo $SSH_PRIVATE_KEY | base64 --decode > /tmp/id_rsa.key
-    - chmod 600 /tmp/id_rsa.key
-    - eval $(ssh-agent -s)
-    - ssh-add /tmp/id_rsa.key
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan -H 130.162.166.54 >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - scp -i /tmp/id_rsa.key build-artifacts.tar.gz ubuntu@130.162.166.54
-  only:
-    - main
-  dependencies:
-    - gradle-package
-
-deploy:
-  stage: deploy
-  script:
     - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
     - echo $SSH_PRIVATE_KEY | base64 --decode > /tmp/id_rsa.key
     - chmod 600 /tmp/id_rsa.key
@@ -111,16 +93,17 @@ deploy:
     - chmod 700 ~/.ssh
     - ssh-keyscan -H 130.162.166.54 >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - scp -i /tmp/id_rsa.key build-artifacts.zip ubuntu@130.162.166.54:~/destination_directory/
+    - scp -i /tmp/id_rsa.key build-artifacts.zip ubuntu@130.162.166.54:~/final-year-project/
   only:
     - main
-
-docker-push:
-  stage: release
-  variables:
-    REGISTRY_URL: registry.gitlab.com
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
   dependencies:
     - gradle-package
+
+deploy:
+  stage: deploy
   script:
-    - ./gradlew jib -Pprod -PnodeInstall -Djib.to.image=$IMAGE_TAG -Djib.to.auth.username="gitlab-ci-token"  -Djib.to.auth.password=$CI_BUILD_TOKEN
+    - echo "Deployment not ready yet"
+  only:
+    - main
+  dependencies:
+    - upload-to-vm
