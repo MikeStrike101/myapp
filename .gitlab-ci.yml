@@ -76,6 +76,7 @@ gradle-package:
   script:
     - ./gradlew bootJar -Pprod -PnodeInstall -x check --no-daemon
     - zip -r build-artifacts.zip build/libs/*.jar build/classes
+    - ls -lah
 
 upload-to-vm:
   stage: upload
