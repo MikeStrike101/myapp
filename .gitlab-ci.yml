@@ -75,10 +75,10 @@ gradle-package:
   stage: package
   script:
     - ./gradlew bootJar -Pprod -PnodeInstall -x check --no-daemon
-    - zip -r build-artifacts.zip build/libs/*.jar build/classes
+    - tar -czf build-artifacts.tar.gz build/libs/*.jar build/classes
   artifacts:
     paths:
-      - build-artifacts.zip
+      - build-artifacts.tar.gz
     expire_in: 1 day
 
 upload-to-vm:
@@ -93,7 +93,7 @@ upload-to-vm:
     - chmod 700 ~/.ssh
     - ssh-keyscan -H 130.162.166.54 >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - scp -i /tmp/id_rsa.key build-artifacts.zip ubuntu@130.162.166.54:~/final-year-project/
+    - scp -i /tmp/id_rsa.key build-artifacts.tar.gz ubuntu@130.162.166.54:~/final-year-project/
   only:
     - main
   dependencies:
