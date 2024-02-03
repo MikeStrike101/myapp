@@ -81,7 +81,7 @@ upload-to-vm:
   stage: upload
   script:
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-    - echo $SSH_PRIVATE_KEY_BASE64 | base64 -d > /tmp/id_rsa.key # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent
+    - echo $SSH_PRIVATE_KEY_BASE64 | base64 --decode > /tmp/id_rsa.key
     - chmod 600 /tmp/id_rsa.key
     - eval $(ssh-agent -s)
     - ssh-add /tmp/id_rsa.key
@@ -89,7 +89,7 @@ upload-to-vm:
     - chmod 700 ~/.ssh
     - ssh-keyscan -H 130.162.166.54 >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - scp -i /tmp/id_rsa.key build-artifacts.tar.gz ubuntu@130.162.166.54:/path/to/your/directory # Copy the artifacts to your server
+    - scp -i /tmp/id_rsa.key build-artifacts.tar.gz ubuntu@130.162.166.54:/path/to/your/directory
   only:
     - main
   dependencies:
