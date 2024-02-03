@@ -4,18 +4,22 @@ cache:
   key: '$CI_COMMIT_REF_NAME'
   paths:
     - .gradle/
+
 stages:
   - check
   - build
   - test
   - analyze
   - package
+  - upload
   - release
   - deploy
+
 before_script:
   - export NG_CLI_ANALYTICS="false"
   - export GRADLE_USER_HOME=`pwd`/.gradle
   - ./gradlew npm_install -PnodeInstall --no-daemon
+
 nohttp:
   stage: check
   script:
@@ -71,11 +75,32 @@ gradle-package:
   stage: package
   script:
     - ./gradlew bootJar -Pprod -PnodeInstall -x check --no-daemon
-  artifacts:
-    paths:
-      - build/libs/*.jar
-      - build/classes
-    expire_in: 1 day
+    - tar -czf build-artifacts.tar.gz build/libs/*.jar build/classes
+
+upload-to-vm:
+  stage: upload
+  script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - echo $SSH_PRIVATE_KEY_BASE64 | base64 -d > /tmp/id_rsa.key # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent
+    - chmod 600 /tmp/id_rsa.key
+    - eval $(ssh-agent -s)
+    - ssh-add /tmp/id_rsa.key
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H 130.162.166.54 >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - scp -i /tmp/id_rsa.key build-artifacts.tar.gz ubuntu@130.162.166.54:/path/to/your/directory # Copy the artifacts to your server
+  only:
+    - main
+  dependencies:
+    - gradle-package
+
+deploy:
+  stage: deploy
+  script:
+    # Add deployment script here
+  only:
+    - main
 
 docker-push:
   stage: release
