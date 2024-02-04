@@ -95,5 +95,3 @@ deploy:
     - echo "Deployment not ready yet"
   only:
     - main
-  dependencies:
-    - upload-to-vm
