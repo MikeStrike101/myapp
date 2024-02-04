@@ -76,12 +76,6 @@ gradle-package:
   script:
     - ./gradlew bootJar -Pprod -PnodeInstall -x check --no-daemon
     - zip -r build-artifacts.zip build/libs/*.jar build/classes
-    - ls -lah
-
-upload-to-vm:
-  stage: upload
-  script:
-    - ls -lah
     - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
     - echo $SSH_PRIVATE_KEY | base64 --decode > /tmp/id_rsa.key
     - chmod 600 /tmp/id_rsa.key
@@ -94,8 +88,6 @@ upload-to-vm:
     - scp -i /tmp/id_rsa.key build-artifacts.zip ubuntu@130.162.166.54:~/final-year-project/
   only:
     - main
-  dependencies:
-    - gradle-package
 
 deploy:
   stage: deploy
