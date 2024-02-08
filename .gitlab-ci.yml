@@ -83,7 +83,7 @@ gradle-package:
     - ssh-add /tmp/id_rsa.key
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - ssh-keyscan -H src/main/webapp/content/images/gameCharacter1.png >> ~/.ssh/known_hosts
+    - ssh-keyscan -H 188.166.158.186 >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     - scp -i /tmp/id_rsa.key build-artifacts.zip root@188.166.158.186:~/final-year-project/
   only:
