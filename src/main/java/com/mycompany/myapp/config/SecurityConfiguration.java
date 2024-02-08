@@ -121,7 +121,6 @@ public class SecurityConfiguration {
                 .frameOptions().mode(Mode.DENY)
         .and()
             .authorizeExchange()
-            .anyExchange().permitAll()
             .pathMatchers("/").permitAll()
             .pathMatchers("/*.*").permitAll()
             .pathMatchers("/api/authenticate").permitAll()
