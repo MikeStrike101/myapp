@@ -76,11 +76,15 @@ gradle-package:
   script:
     - ./gradlew bootJar -Pprod -PnodeInstall -x check --no-daemon
     - zip -r build-artifacts.zip build/libs/*.jar build/classes
-    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+    - apt-get update -y && apt-get install openssh-client -y
     - echo $SSH_PRIVATE_KEY | base64 --decode > /tmp/id_rsa.key
     - chmod 600 /tmp/id_rsa.key
     - eval $(ssh-agent -s)
-    - ssh-add /tmp/id_rsa.key
+    - echo -e '#!/bin/sh\necho "$SSH_KEY_PASSPHRASE"' > /tmp/askpass.sh
+    - chmod +x /tmp/askpass.sh
+    - export SSH_ASKPASS=/tmp/askpass.sh
+    - export DISPLAY=:0
+    - setsid ssh-add /tmp/id_rsa.key </dev/null
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - ssh-keyscan -H 188.166.158.186 >> ~/.ssh/known_hosts
