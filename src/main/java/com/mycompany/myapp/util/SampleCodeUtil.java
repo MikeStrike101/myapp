@@ -9,7 +9,6 @@ public class SampleCodeUtil {
     private static final Map<Integer, String> pythonSampleCodes = new HashMap<>();
 
     static {
-        // Initialize Java sample codes
         javaSampleCodes.put(
             1,
             "public class Main {\n" +

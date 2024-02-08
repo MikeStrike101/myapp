@@ -131,16 +131,19 @@ spring:
     parameters:
       search-path: ./src/main/resources/config/liquibase/changelog
   mail:
-    host: smtp.example.com
+    host: smtp.gmail.com
     port: 587
-    username: your-email@example.com
-    password: your-password
+    username: mikestrike555@gmail.com
+    password: jfmg xrqv uypr rlkx
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+          ssl:
+            trust: smtp.gmail.com
+
   application:
     name: myapp
   profiles:
@@ -152,8 +155,7 @@ spring:
       dev:
         - dev
         - api-docs
-        # Uncomment to activate TLS for the dev profile
-        #- tls
+        # - tls
   jmx:
     enabled: false
   messages:

@@ -1,5 +1,7 @@
 package com.mycompany.myapp.web.rest;
 
+import com.mycompany.myapp.domain.GameCharacter;
+import com.mycompany.myapp.repository.GameCharacterRepository;
 import com.mycompany.myapp.repository.ProblemRepository;
 import com.mycompany.myapp.service.ExecutionCodeService;
 import com.mycompany.myapp.service.GameCharacterService;
@@ -12,6 +14,7 @@ import com.mycompany.myapp.service.dto.ProblemDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -61,6 +64,8 @@ public class ProblemResource {
 
     private final GameCharacterService gameCharacterService;
 
+    private final GameCharacterRepository gameCharacterRepository;
+
     public ProblemResource(
         ProblemService problemService,
         ProblemRepository problemRepository,
@@ -68,7 +73,8 @@ public class ProblemResource {
         TestCaseService testCaseService,
         ProgressService progressService,
         ExecutionCodeService executionCodeService,
-        GameCharacterService gameCharacterService
+        GameCharacterService gameCharacterService,
+        GameCharacterRepository gameCharacterRepository
     ) {
         this.problemService = problemService;
         this.problemRepository = problemRepository;
@@ -77,6 +83,7 @@ public class ProblemResource {
         this.progressService = progressService;
         this.executionCodeService = executionCodeService;
         this.gameCharacterService = gameCharacterService;
+        this.gameCharacterRepository = gameCharacterRepository;
     }
 
     /**
@@ -257,43 +264,53 @@ public class ProblemResource {
 
     @PostMapping("/submit-code")
     public Mono<ResponseEntity<Map<String, String>>> submitAndExecuteCode(@RequestBody ExecutionCodeDTO executionCodeDTO) {
-        String language = "python";
-        String version = "3.10";
+        Mono<GameCharacter> gameCharacterMono = gameCharacterRepository.findById(executionCodeDTO.getGameCharacter());
 
-        Map<String, String> file = Map.of("content", executionCodeDTO.getCode());
-        List<Map<String, String>> files = List.of(file);
-        log.debug("Received request to submit and execute code: {}", executionCodeDTO);
+        HashMap<String, String> programmingLanguageVersion = new HashMap<>();
+        programmingLanguageVersion.put("python", "3.10");
+        programmingLanguageVersion.put("java", "15.0.2");
+        programmingLanguageVersion.put("javascript", "1.32.3");
 
-        return pistonService
-            .executeCode(language, version, files)
-            .flatMap(executionResult -> {
-                return testCaseService
-                    .getExpectedOutputByQuestionId(executionCodeDTO.getQuestionNumber())
-                    .flatMap(expectedOutput -> {
-                        String actualOutputCleaned = executionResult.getOutput().replace("_", "").replaceAll("\\s+", "").trim();
+        return gameCharacterMono.flatMap(gameCharacter -> {
+            String language = gameCharacter.getProgrammingLanguage().toLowerCase();
+            String version = programmingLanguageVersion.get(language);
+            log.debug("Programming language and version {} {}", language, version);
+            Map<String, String> file = Map.of("content", executionCodeDTO.getCode());
+            List<Map<String, String>> files = List.of(file);
+            log.debug("Received request to submit and execute code: {}", executionCodeDTO);
 
-                        String expectedOutputCleaned = expectedOutput.replace("_", "").replaceAll("\\s+", "").trim();
+            return pistonService
+                .executeCode(language, version, files)
+                .flatMap(executionResult -> {
+                    return testCaseService
+                        .getExpectedOutputByQuestionId(executionCodeDTO.getQuestionNumber())
+                        .flatMap(expectedOutput -> {
+                            String actualOutputCleaned = executionResult.getOutput().replace("_", "").replaceAll("\\s+", "").trim();
+                            String expectedOutputCleaned = expectedOutput.replace("_", "").replaceAll("\\s+", "").trim();
 
-                        if (actualOutputCleaned.equals(expectedOutputCleaned)) {
-                            return Mono.just(ResponseEntity.ok().body(Map.of("message", "Code executed successfully. Test case passed!")));
-                        } else {
-                            log.warn("Test case did not pass for question number: {}", executionCodeDTO.getQuestionNumber());
-                            log.debug("Mismatch found:");
-                            log.debug("Actual Output (Cleaned): {}", actualOutputCleaned);
-                            log.debug("Expected Output (Cleaned): {}", expectedOutputCleaned);
-                            return Mono.just(
-                                ResponseEntity.badRequest().body(Map.of("error", "Code execution failed. Test case did not pass."))
-                            );
-                        }
-                    });
-            })
-            .onErrorResume(e -> {
-                log.error("Error during code execution", e);
-                return Mono.just(
-                    ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(Map.of("error", "Error during code execution: " + e.getMessage()))
-                );
-            });
+                            if (actualOutputCleaned.equals(expectedOutputCleaned)) {
+                                return Mono.just(
+                                    ResponseEntity.ok().body(Map.of("message", "Code executed successfully. Test case passed!"))
+                                );
+                            } else {
+                                log.warn("Test case did not pass for question number: {}", executionCodeDTO.getQuestionNumber());
+                                log.debug("Mismatch found:");
+                                log.debug("Actual Output (Cleaned): {}", actualOutputCleaned);
+                                log.debug("Expected Output (Cleaned): {}", expectedOutputCleaned);
+                                return Mono.just(
+                                    ResponseEntity.badRequest().body(Map.of("error", "Code execution failed. Test case did not pass."))
+                                );
+                            }
+                        });
+                })
+                .onErrorResume(e -> {
+                    log.error("Error during code execution", e);
+                    return Mono.just(
+                        ResponseEntity
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(Map.of("error", "Error during code execution: " + e.getMessage()))
+                    );
+                });
+        });
     }
 }

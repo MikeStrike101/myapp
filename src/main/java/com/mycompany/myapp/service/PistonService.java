@@ -3,6 +3,8 @@ package com.mycompany.myapp.service;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,6 +14,7 @@ import reactor.core.publisher.Mono;
 public class PistonService {
 
     private final WebClient webClient;
+    private final Logger log = LoggerFactory.getLogger(PistonService.class);
 
     public PistonService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl("https://emkc.org").build();
@@ -19,7 +22,7 @@ public class PistonService {
 
     public Mono<ExecutionResult> executeCode(String language, String version, List<Map<String, String>> files) {
         Map<String, Object> payload = Map.of("language", language, "version", version, "files", files);
-
+        log.debug("Payload is {}", payload);
         return this.webClient.post()
             .uri("/api/v2/piston/execute")
             .contentType(MediaType.APPLICATION_JSON)

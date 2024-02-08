@@ -19,6 +19,7 @@ import com.mycompany.myapp.util.SampleCodeUtil;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 /**
  * Service Implementation for managing {@link GameCharacter}.
@@ -103,8 +105,10 @@ public class GameCharacterService {
                         savedGameCharacter.getColor() +
                         " with " +
                         savedGameCharacter.getAccessory();
+
                     return replicateService
                         .generateImage(prompt)
+                        .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(5)).filter(throwable -> throwable instanceof Exception))
                         .flatMap(imageUrl -> {
                             try {
                                 String savedImagePath = downloadAndSaveImage(imageUrl, "gameCharacter" + savedGameCharacter.getId());
@@ -116,17 +120,30 @@ public class GameCharacterService {
                                 progress.setStatus(Status.STARTED);
                                 progress.setCurrentLesson(1);
                                 progress.setXp(0);
-
                                 savedGameCharacter.setProgress(progress);
 
                                 return customProgressRepository
                                     .insertWithCustomId(progress)
                                     .then(insertDefaultSampleCodes(savedGameCharacter))
-                                    .then(gameCharacterRepository.save(savedGameCharacter));
+                                    .then(gameCharacterRepository.save(savedGameCharacter))
+                                    .doOnSuccess(character -> {
+                                        String userEmail = character.getEmail();
+                                        if (userEmail != null && !userEmail.isEmpty()) {
+                                            String htmlContent = emailService.prepareHtmlContent(
+                                                character.getUniqueLink(),
+                                                character.getName()
+                                            );
+                                            emailService.sendUniqueLinkEmail(userEmail, "Welcome to EvoCode!", htmlContent);
+                                        }
+                                    });
                             } catch (IOException e) {
                                 log.error("Error saving image", e);
                                 return Mono.error(e);
                             }
+                        })
+                        .onErrorResume(e -> {
+                            log.error("Error during image generation or saving", e);
+                            return Mono.error(new Exception("Failed to generate or save image."));
                         });
                 } else {
                     return gameCharacterRepository.save(savedGameCharacter);
