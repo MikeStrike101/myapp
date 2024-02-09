@@ -1,26 +1,30 @@
 # ===================================================================
-# Spring Boot configuration.
+# Spring Boot configuration for production profile.
 # ===================================================================
 
 spring:
-  config:
-    activate:
-      on-profile: '!api-docs'
+  profiles:
+    active: prod
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/myapp
+    username: myapp
+    password:
+
   jpa:
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        use_sql_comments: true
+    hibernate:
+      ddl-auto: validate # Avoid using 'update' in production
+    show-sql: false # Turn this off in production for performance and security
+
   liquibase:
-    change-log: classpath:/config/liquibase/changelog/master.xml
-    parameters:
-      search-path: ./src/main/resources/config/liquibase/changelog
+    contexts: prod # Make sure this is set to 'prod' in production
+    change-log: classpath:/config/liquibase/changelog/master.xml # Verify the path for production
+
   mail:
-    host: smtp.gmail.com
+    host: smtp.gmail.com # Your production mail server
     port: 587
     username: mikestrike555@gmail.com
-    password: ${MAIL_PASSWORD}
+    password: ${MAIL_PASSWORD} # Set this as an environment variable or secret
     properties:
       mail:
         smtp:
@@ -28,135 +32,42 @@ spring:
           starttls:
             enable: true
           ssl:
-            trust: smtp.gmail.com
+            trust: smtp.gmail.com # Your production mail server
 
-  application:
-    name: myapp
+  thymeleaf:
+    cache: true # Enable template caching in production
 
-  profiles:
-    active: #spring.profiles.active#
-    group:
-      dev:
-        - dev
-        - api-docs
-
-springdoc:
-  show-actuator: true
-  api-docs:
-    enabled: false
-
-# ===================================================================
-# Eureka Client Configuration
-# ===================================================================
 eureka:
   client:
-    enabled: true
-    healthcheck:
-      enabled: true
-    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/ # Your production Eureka server
     register-with-eureka: true
-    instance-info-replication-interval-seconds: 10
-    registry-fetch-interval-seconds: 10
-  instance:
-    appname: myapp
-    instanceId: myapp:${spring.application.instance-id:${random.value}}
-    lease-renewal-interval-in-seconds: 5
-    lease-expiration-duration-in-seconds: 10
-    status-page-url-path: ${management.endpoints.web.base-path}/info
-    health-check-url-path: ${management.endpoints.web.base-path}/health
-    metadata-map:
-      zone: primary
-      profile: ${spring.profiles.active}
-      version: #project.version#
-      git-version: ${git.commit.id.describe:}
-      git-commit: ${git.commit.id.abbrev:}
-      git-branch: ${git.branch:}
-      context-path: ${server.servlet.context-path:}
+    fetch-registry: true
+    enabled: true
 
-# ===================================================================
-# Management and Metrics
-# ===================================================================
 management:
   endpoints:
     web:
-      base-path: /management
       exposure:
-        include:
-          [
-            'configprops',
-            'env',
-            'health',
-            'info',
-            'jhimetrics',
-            'jhiopenapigroups',
-            'logfile',
-            'loggers',
-            'prometheus',
-            'threaddump',
-            'liquibase',
-          ]
-  endpoint:
-    health:
-      show-details: when_authorized
-      roles: 'ROLE_ADMIN'
-      probes:
-        enabled: true
-      group:
-        liveness:
-          include: livenessState
-        readiness:
-          include: readinessState,db
-    jhimetrics:
-      enabled: true
-  info:
-    git:
-      mode: full
-    env:
-      enabled: true
-  health:
-    mail:
-      enabled: false
-  metrics:
-    export:
-      prometheus:
-        enabled: true
-        step: 60
-    enable:
-      http: true
-      jvm: true
-      logback: true
-      process: true
-      system: true
-    distribution:
-      percentiles-histogram:
-        all: true
-      percentiles:
-        all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
-    tags:
-      application: ${spring.application.name}
-    web:
-      server:
-        request:
-          autotime:
-            enabled: true
+        include: 'health,info' # Expose only necessary endpoints
 
-# ===================================================================
-# Server and Servlet Configuration
-# ===================================================================
 server:
+  port: 8080
   servlet:
+    context-path: / # Adjust if you use a different context path
     session:
       cookie:
         http-only: true
 
 # ===================================================================
-# Security Configuration Adjustments for Login-less Setup
+# Security Configuration Adjustments for production.
 # ===================================================================
 security:
+  basic:
+    enabled: false # If you are using OAuth2/OIDC, basic security should be disabled
   oauth2:
     client:
-      # Assuming you might disable or adjust the security for a login-less experience
-      # This section may be adjusted or disabled accordingly
+      # Configure OAuth2 client details for production
 
 # ===================================================================
 # CORS and JHipster-specific Configurations
@@ -164,23 +75,20 @@ security:
 jhipster:
   cors:
     allowed-origins: 'http://localhost:8100,http://localhost:9000'
-    allowed-methods: '*'
-    allowed-headers: '*'
-    exposed-headers: 'Authorization,Link,X-Total-Count,X-${jhipster.clientApp.name}-alert,X-${jhipster.clientApp.name}-error,X-${jhipster.clientApp.name}-params'
+    allowed-methods: 'GET,POST,PUT,DELETE'
+    allowed-headers: 'Authorization,Content-Type'
+    exposed-headers: 'Authorization,Link,X-Total-Count'
     allow-credentials: true
     max-age: 1800
+
   mail:
-    from: myapp@localhost
-  api-docs:
-    default-include-pattern: ${server.servlet.context-path:}/api/**
-    management-include-pattern: ${server.servlet.context-path:}/management/**
-    title: Myapp API
-    description: Myapp API documentation
-    version: 0.0.1
+    from: mikestrike555@gmail.com # Replace with your production email domain
+
   security:
-    content-security-policy: "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com data:"
+    content-security-policy: "default-src 'self'; ... " # Define a strict CSP for production
+
 # ===================================================================
 # Application Properties (Add your custom properties here)
 # ===================================================================
-
 # application:
+# Custom properties for production
